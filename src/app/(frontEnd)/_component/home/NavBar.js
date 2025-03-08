@@ -10,7 +10,8 @@ const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
 
   const elements = [
     { name: "Home", link: "/" },
-    { name: "Collections", link: "/collections", isDropdown: true },
+    { name: "Collections", link: "/#collections" },
+    { name: "Top Selling", link: "/#top-selling" },
     { name: "About", link: "/about" },
     { name: "Contact Us", link: "/contact-us" },
   ];
@@ -24,34 +25,15 @@ const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
   return (
     <>
       <div className="hidden lg:flex flex-row justify-center gap-10 items-center">
-        {elements.map((e, index) =>
-          e.isDropdown ? (
-            <div key={index} className="relative group ">
-              <span className="hover:text-[var(--hover-color)] cursor-pointer font-[600] text-xl">
-                {e.name}
-              </span>
-              <div className="absolute left-0 hidden bg-[#0f0c0c]  z-1000 group-hover:flex flex-col shadow-lg rounded-lg py-2 px-4 w-48">
-                {collections.map((c, idx) => (
-                  <Link
-                    key={idx}
-                    href={c.link}
-                    className="block text-[var(--white)] hover:text-[var(--hover-color)] py-1"
-                  >
-                    {c.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <Link
-              key={index}
-              href={e.link}
-              className="hover:text-[var(--hover-color)] cursor-pointer font-[600] text-xl"
-            >
-              {e.name}
-            </Link>
-          )
-        )}
+        {elements.map((e, index) => (
+          <Link
+            key={index}
+            href={e.link}
+            className="hover:text-[var(--hover-color)] cursor-pointer font-[600] text-xl"
+          >
+            {e.name}
+          </Link>
+        ))}
       </div>
 
       <div
@@ -70,7 +52,7 @@ const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
           <Image src="/Logo.png" width={400} height={200} alt="logo" />
 
           {elements.map((e, index) =>
-            e.isDropdown ? (
+            e.name === "Collections" ? (
               <div
                 key={index}
                 className="flex flex-col items-center w-full ml-2 "

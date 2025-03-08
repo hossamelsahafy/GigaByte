@@ -1,11 +1,15 @@
 import React from "react";
-import NavBar from "./_component/home/NavBar";
-import Header from "./_component/home/header";
-import Home from "./_component/home/home";
+import Banner from "./_component/home/Banner";
+import Collections from "./_component/home/Collections";
+import Top from "./_component/home/Top";
+import ContactSection from "./_component/home/contactus";
 const page = () => {
   return (
     <div>
-      <Home />
+      <Banner />
+      <Top />
+      <Collections />
+      <ContactSection />
     </div>
   );
 };

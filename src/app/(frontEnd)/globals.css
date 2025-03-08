@@ -38,3 +38,16 @@ body {
   padding: 0;
   margin: 0;
 }
+html {
+  scroll-behavior: smooth;
+}
+
+.swiper .swiper-button-next,
+.swiper .swiper-button-prev {
+  color: var(--button-bg);
+}
+
+.swiper .swiper-button-next:hover,
+.swiper .swiper-button-prev:hover {
+  color: var(--hover-color)
+}
