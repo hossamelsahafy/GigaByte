@@ -47,7 +47,7 @@ const Page = () => {
         >
           {collections.map((c, index) => (
             <SwiperSlide key={index}>
-              <div className="group bg-white p-6 rounded-lg shadow-lg text-[#333] w-full h-[400px] flex flex-col items-center relative overflow-hidden cursor-grab">
+              <div className="group bg-[var(--button-bg)]  p-6 rounded-lg shadow-lg text-white w-full h-[400px] flex flex-col items-center relative overflow-hidden cursor-grab">
                 <p className="text-xl font-[900] mb-4">{c.name}</p>
 
                 <button className="z-100 mb-7 absolute bottom-0 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity duration-300 bg-[var(--button-bg)] text-white px-6 py-2 rounded-lg hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833] mt-12">

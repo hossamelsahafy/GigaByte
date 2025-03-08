@@ -49,5 +49,5 @@ html {
 
 .swiper .swiper-button-next:hover,
 .swiper .swiper-button-prev:hover {
-  color: var(--hover-color)
+  color: #333
 }

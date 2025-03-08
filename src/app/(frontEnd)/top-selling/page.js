@@ -4,14 +4,20 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { IoMdCart } from "react-icons/io";
 
 const Page = () => {
   const elemnts = [
     { name: "Controller", image: "/Controller.png", price: "400" },
-    { name: "Headset", image: "/Headset.png", price: "250" },
-    { name: "Keyboard", image: "/Keyboard.png", price: "300" },
-    { name: "Mouse", image: "/Mouse.png", price: "150" },
-    { name: "Monitor", image: "/Monitor.png", price: "500" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
+    { name: "Controller", image: "/Controller.png", price: "400" },
   ];
 
   return (
@@ -46,7 +52,7 @@ const Page = () => {
                   <img
                     src={c.image}
                     alt={c.name}
-                    className="w-full h-[200px] group object-contain rounded-t-lg"
+                    className="w-full h-[200px] object-contain rounded-t-lg"
                   />
                   <div className="flex flex-col items-center p-4">
                     <p className="text-xl font-semibold mb-2 text-gray-800">
@@ -55,8 +61,8 @@ const Page = () => {
                     <p className="text-lg font-bold text-gray-700 mb-2">
                       {c.price}EGP
                     </p>
-                    <button className="bg-[var(--button-bg)] group opacity-0 hover:opacity-100 cursor-pointer text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833]">
-                      Details
+                    <button className="bg-[var(--button-bg)] opacity-0 group-hover:opacity-100 cursor-pointer text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833]">
+                      Add To Cart <IoMdCart className="inline-block text-xl" />
                     </button>
                   </div>
                 </div>
