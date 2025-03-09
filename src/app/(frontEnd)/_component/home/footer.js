@@ -28,7 +28,7 @@ const Footer = () => {
   return (
     <footer className="bg-[var(--slide-bar)] text-white py-10 mt-20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="flex flex-col items-center lg:items-start">
             <Image src="/Logo.png" width={200} height={100} alt="logo" />
@@ -39,7 +39,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-col items-center lg:items-start">
+          <div className="flex lg:my-0 mt-12 flex-col items-center lg:items-start">
             <h3 className="text-xl font-[600] mb-4">Quick Links</h3>
             <ul className="space-y-2">
               {elements.map((e, index) => (

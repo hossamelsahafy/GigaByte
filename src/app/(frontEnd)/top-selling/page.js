@@ -5,6 +5,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { IoMdCart } from "react-icons/io";
+import Image from "next/image";
 
 const Page = () => {
   const elemnts = [
@@ -49,9 +50,11 @@ const Page = () => {
             {elemnts.map((c, index) => (
               <SwiperSlide key={index}>
                 <div className="bg-white p-4 group rounded-lg shadow-lg w-full h-auto flex flex-col items-center text-center relative overflow-hidden">
-                  <img
+                  <Image
                     src={c.image}
                     alt={c.name}
+                    width={400}
+                    height={200}
                     className="w-full h-[200px] object-contain rounded-t-lg"
                   />
                   <div className="flex flex-col items-center p-4">

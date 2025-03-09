@@ -6,7 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa6";
 import { MdAccountCircle } from "react-icons/md";
 import { useState } from "react";
 import NavBar from "./NavBar";
-const header = () => {
+const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const right = [
     {
@@ -78,4 +78,4 @@ const header = () => {
   );
 };
 
-export default header;
+export default Header;

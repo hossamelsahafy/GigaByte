@@ -4,7 +4,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-
+import Image from "next/image";
 const Page = () => {
   const collections = [
     {
@@ -54,9 +54,11 @@ const Page = () => {
                   View More
                 </button>
 
-                <img
+                <Image
                   src={c.image}
                   alt={c.name}
+                  width={400}
+                  height={200}
                   className="absolute bottom-0 left-0 w-full h-[300px] object-cover rounded-md transition-transform duration-300 group-hover:scale-105"
                 />
               </div>

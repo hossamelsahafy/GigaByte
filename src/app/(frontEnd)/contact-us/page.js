@@ -48,7 +48,7 @@ export default function Contact() {
     <div className="flex flex-col md:flex-row items-center justify-center gap-10 p-6">
       <div className="flex flex-col items-start text-left gap-4 w-full max-w-sm">
         <h1 className="text-3xl font-extrabold text-white mb-4 ml-10">
-          Let's <span className="text-[var(--hover-color)]">Connect</span>
+          Let&lsquo;s <span className="text-[var(--hover-color)]">Connect</span>
         </h1>
         {contactItems.map((item, index) => (
           <div

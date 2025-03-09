@@ -4,7 +4,7 @@ import { FaArrowRight } from "react-icons/fa";
 
 const ContactSection = () => {
   return (
-    <section className="bg-[var(--button-bg)] text-white py-16">
+    <section className="bg-[var(--button-bg)] text-white py-16 -mb-10">
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="text-center lg:text-left">

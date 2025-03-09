@@ -1,3 +1,4 @@
+import Image from "next/image";
 const Banner = () => {
   return (
     <div className="flex flex-col lg:flex-row justify-around items-center gap-5 h-full w-full bg-gradient-to-br from-[#0B0C10] via-[#1F2833] to-[#2C3E50] mt-10 p-8">
@@ -33,9 +34,11 @@ const Banner = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 lg:scale-125">
-        <img
+        <Image
           src="/Banner.png"
           alt="Banner"
+          width={400}
+          height={200}
           className="w-full h-auto max-w-md"
         />
       </div>

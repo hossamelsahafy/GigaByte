@@ -15,9 +15,7 @@ const Page = () => {
             , your trusted partner in technology solutions! With over{" "}
             <span className="font-semibold">15 years of experience</span>, we
             have been dedicated to providing top-notch services and products to
-            meet all your tech needs. Whether you're looking for the latest
-            laptops, reliable PCs, or high-quality accessories, we’ve got you
-            covered.
+            you covered.
           </p>
 
           <div>
@@ -46,9 +44,9 @@ const Page = () => {
               <li>
                 <span className="font-semibold">Repair Services</span>: Our
                 expert technicians provide reliable repair services for laptops,
-                PCs, and accessories. Whether it’s a hardware issue or software
-                troubleshooting, we’ll have your device running smoothly in no
-                time.
+                PCs, and accessories. Whether it&lsquo;s a hardware issue or
+                software troubleshooting, we&lsquo;ll have your device running
+                smoothly in no time.
               </li>
             </ul>
           </div>
