@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server.js";
-import { sendMail } from "../../lib/sendEmail";
+import { sendMail } from "../../lib/sendEmail.js";
+import type { NextRequest } from "next/server.js";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { name, phone, email, message } = await req.json();
 
@@ -19,7 +20,13 @@ export async function POST(req: Request) {
                   <p><strong>Email:</strong> ${email}</p>
                   <p><strong>Message:</strong> ${message}</p>`;
 
-    await sendMail({ email, subject, text, html });
+    await sendMail({
+      email,
+      sendTo: process.env.SITE_MAIL_RECIEVER,
+      subject,
+      text,
+      html,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "types": [
+      "next"
+    ],
     "paths": {
       "@payload-config": [
         "./payload.config.ts"
@@ -13,15 +16,17 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true, // Recommended for better type safety
     "noEmit": true,
     "incremental": true,
-    "module": "Node16",
+    "module": "node16", // Set to "node16" or "nodenext"
     "esModuleInterop": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "node16", // Matches the "module" option
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "baseUrl": "." // Add this to resolve paths correctly
+    ,
     "plugins": [
       {
         "name": "next"
