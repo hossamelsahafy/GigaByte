@@ -7,10 +7,44 @@ import { motion, AnimatePresence } from "framer-motion";
 import SigninForm from "../_component/auth/SigninForm.js";
 import SignupForm from "../_component/auth/SignupForm.js";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isPolicyOpen, setIsPolicyOpen] = useState(false);
   const [hasAgreed, setHasAgreed] = useState(false);
+  const Router = useRouter();
+  const handleSignInGoogle = async () => {
+    try {
+      const result = await signIn("google", {
+        redirect: false,
+        callbackUrl: "/account",
+      });
+
+      if (result?.error) {
+        console.error("Google sign-in failed:", result.error);
+      } else {
+        Router.replace(result.url || "/account");
+      }
+    } catch (error) {
+      console.error("Error during Google sign-in", error);
+    }
+  };
+  const handleSignInFB = async () => {
+    try {
+      const result = await signIn("facebook", {
+        redirect: false,
+        callbackUrl: "/account",
+      });
+
+      if (result?.error) {
+        console.error("Google sign-in failed:", result.error);
+      } else {
+        Router.replace(result.url || "/account");
+      }
+    } catch (error) {
+      console.error("Error during Google sign-in", error);
+    }
+  };
 
   const openPolicyModal = () => setIsPolicyOpen(true);
   const closePolicyModal = () => setIsPolicyOpen(false);
@@ -24,7 +58,7 @@ const LoginPage = () => {
 
         <div className="flex flex-col gap-4 mb-6">
           <button
-            onClick={() => signIn("google")}
+            onClick={handleSignInGoogle}
             className="bg-[var(--button-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] p-3 rounded-md flex items-center justify-center gap-3 hover:bg-[#161b22] cursor-pointer transition-colors"
           >
             <FaGoogle className="w-5 h-5 text-red-500 -ml-4" />
@@ -32,7 +66,7 @@ const LoginPage = () => {
           </button>
 
           <button
-            onClick={() => signIn("facebook")}
+            onClick={handleSignInFB}
             className="bg-[var(--button-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] p-3 rounded-md flex items-center justify-center gap-3 hover:bg-[#161b22] cursor-pointer transition-colors"
           >
             <FaFacebook className="w-5 h-5 text-blue-600" />
@@ -67,6 +101,7 @@ const LoginPage = () => {
                 hasAgreed={hasAgreed}
                 setHasAgreed={setHasAgreed}
                 openPolicyModal={openPolicyModal}
+                setIsLogin={setIsLogin}
               />
             )}
           </motion.div>

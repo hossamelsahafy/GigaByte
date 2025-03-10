@@ -71,6 +71,16 @@ const Users = {
       },
     },
     {
+      name: "resetToken",
+      type: "text",
+      hidden: true,
+    },
+    {
+      name: "resetTokenExpiration",
+      type: "date",
+      hidden: true,
+    },
+    {
       name: "role",
       type: "select",
       options: ["admin", "editor", "user"],

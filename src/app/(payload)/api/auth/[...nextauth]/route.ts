@@ -48,7 +48,7 @@ const authOptions = {
         user.provider = account.provider;
         user.providerId = account.providerAccountId;
       }
-      return true; // Allow sign-in
+      return true;
     },
   },
 };
