@@ -12,15 +12,11 @@ export default function Contact() {
       text: "Damietta, Egypt",
       link: "https://maps.app.goo.gl/BWX5vb5ZrQXXwQk36",
     },
+
     {
       icon: <MdEmail className="text-[var(--hover-color)]" />,
-      text: "contact@artpackaging.com.sa",
-      link: "mailto:contact@artpackaging.com.sa",
-    },
-    {
-      icon: <MdEmail className="text-[var(--hover-color)]" />,
-      text: "info@artpackaging.com.sa",
-      link: "mailto:info@artpackaging.com.sa",
+      text: "gigabyte.info.010@gmail.com",
+      link: "mailto:gigabyte.info.010@gmail.com",
     },
     {
       icon: <FaPhone className="text-[var(--hover-color)]" />,

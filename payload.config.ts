@@ -1,25 +1,14 @@
-import sharp from "sharp";
-import { lexicalEditor } from "@payloadcms/richtext-lexical";
-import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { buildConfig } from "payload";
+import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import Users from "./src/app/(payload)/_collection/User.js";
+import Products from "./src/app/(payload)/_collection/Products.js";
+import Categories from "./src/app/(payload)/_collection/categories.js";
+import Comments from "./src/app/(payload)/_collection/Comments.js";
+import Orders from "./src/app/(payload)/_collection/orders.js";
+import Media from "./src/app/(payload)/_collection/Media.js";
 
 export default buildConfig({
-  // If you'd like to use Rich Text, pass your editor here
   editor: lexicalEditor(),
-
-  // Define and configure your collections in this array
-  collections: [],
-
-  // Your Payload secret - should be a complex and secure string, unguessable
+  collections: [Users, Products, Media, Categories, Comments, Orders],
   secret: process.env.PAYLOAD_SECRET || "",
-  // Whichever Database Adapter you're using should go here
-  // Mongoose is shown as an example, but you can also use Postgres
-  db: mongooseAdapter({
-    url: process.env.DATABASE_URI || "",
-  }),
-  // If you want to resize images, crop, set focal point, etc.
-  // make sure to install it and pass it to the config.
-  // This is optional - if you don't need to do these things,
-  // you don't need it!
-  sharp,
 });

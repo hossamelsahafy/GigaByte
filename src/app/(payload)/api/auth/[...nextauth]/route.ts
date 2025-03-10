@@ -1,52 +1,58 @@
-// src/app/(payload)/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-import Facebook from "next-auth/providers/facebook";
+import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import clientPromise from "../../../lib/dbConnect.js";
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    };
-  }
-
-  interface JWT {
-    id?: string;
-  }
-}
-
-const { handlers, auth } = NextAuth({
+const authOptions = {
   providers: [
-    Google({
+    GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    Facebook({
+    FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
     }),
   ],
+  adapter: MongoDBAdapter(clientPromise),
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }) {
-      if (user?.id) {
-        token.id = typeof user.id === "string" ? user.id : String(user.id);
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
+        token.firstName = user.name?.split(" ")[0] || "";
+        token.lastName = user.name?.split(" ").slice(1).join(" ") || "";
+        token.provider = account?.provider || "local";
+        token.providerId = account?.providerAccountId || null;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token.id && typeof token.id === "string") {
+      if (session.user) {
         session.user.id = token.id;
-      } else {
-        console.error("Invalid token.id type:", token.id);
-        session.user.id = "unknown";
+        session.user.firstName = token.firstName;
+        session.user.lastName = token.lastName;
+        session.user.provider = token.provider;
+        session.user.providerId = token.providerId;
       }
       return session;
     },
-  },
-  secret: process.env.NEXTAUTH_SECRET!,
-});
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const [firstName, ...lastNameArr] = user.name?.split(" ") || ["", ""];
+        const lastName = lastNameArr.join(" ");
 
-export const { GET, POST } = handlers;
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.provider = account.provider;
+        user.providerId = account.providerAccountId;
+      }
+      return true; // Allow sign-in
+    },
+  },
+};
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };

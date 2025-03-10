@@ -5,7 +5,7 @@
     ],
     "paths": {
       "@payload-config": [
-        "./payload.config.ts"
+        "payload.config.ts"
       ]
     },
     "target": "ES2017",
@@ -16,16 +16,16 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true, // Recommended for better type safety
+    "strict": true,
     "noEmit": true,
     "incremental": true,
-    "module": "node16", // Set to "node16" or "nodenext"
+    "module": "node16",
     "esModuleInterop": true,
-    "moduleResolution": "node16", // Matches the "module" option
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "baseUrl": "." // Add this to resolve paths correctly
+    "baseUrl": "."
     ,
     "plugins": [
       {
@@ -38,7 +38,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/app/(payload)/_collection/Comments.js", "src/app/(payload)/_collection/orders.js", "src/app/(payload)/_collection/Products.js", "src/app/(payload)/lib/payload.js"  ],
   "exclude": [
     "node_modules"
   ]
