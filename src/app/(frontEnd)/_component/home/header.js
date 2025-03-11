@@ -7,9 +7,16 @@ import { MdAccountCircle } from "react-icons/md";
 import { useState } from "react";
 import Link from "next/link";
 import NavBar from "./NavBar";
+import { useSession, signOut } from "next-auth/react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session, status } = useSession();
+
+  const handleSignOut = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    window.location.href = "/auth";
+  };
 
   const right = [
     {
@@ -17,18 +24,32 @@ const Header = () => {
       Icon: <CiSearch />,
     },
     {
-      name: "Account",
+      name: session ? "Profile" : "Account",
       Icon: <MdAccountCircle />,
-      link: "/account",
+      link: session ? "/profile" : "/auth",
     },
     {
       name: "Cart",
       Icon: <IoMdCart />,
-      link: "/cart",
+      link: session ? "/cart" : "/auth",
     },
+    ...(session
+      ? [
+          {
+            name: "Sign Out",
+            Icon: null,
+            link: null,
+            onClick: handleSignOut,
+          },
+        ]
+      : []),
   ];
 
-  const acc = right.find((r) => r.name === "Account");
+  const acc = right.find((r) => r.name === (session ? "Profile" : "Account"));
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -37,7 +58,6 @@ const Header = () => {
           <p>EGP</p>
         </div>
 
-        {/* Menu Icon (FaBars) - Only this should open the slider */}
         <div className="flex lg:hidden cursor-pointer font-[600] text-3xl">
           <FaBars
             className="hover:text-[var(--hover-color)]"
@@ -47,7 +67,13 @@ const Header = () => {
             {right.map((r, index) => (
               <ul key={index}>
                 <li className="font-[600] text-3xl mr-2 hover:text-[var(--hover-color)]">
-                  {r.link ? <Link href={r.link}>{r.Icon}</Link> : r.Icon}
+                  {r.link ? (
+                    <Link href={r.link}>{r.Icon || r.name}</Link>
+                  ) : r.onClick ? (
+                    <button onClick={r.onClick}>{r.name}</button>
+                  ) : (
+                    r.Icon || r.name
+                  )}
                 </li>
               </ul>
             ))}
@@ -70,8 +96,14 @@ const Header = () => {
               key={index}
               className="flex items-center hover:text-[var(--hover-color)]"
             >
-              {r.link ? <Link href={r.link}>{r.name}</Link> : r.name}
-              <span className="text-2xl ml-2">{r.Icon}</span>
+              {r.link ? (
+                <Link href={r.link}>{r.name}</Link>
+              ) : r.onClick ? (
+                <button onClick={r.onClick}>{r.name}</button>
+              ) : (
+                r.name
+              )}
+              {r.Icon && <span className="text-2xl ml-2">{r.Icon}</span>}
             </div>
           ))}
         </div>

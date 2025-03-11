@@ -23,7 +23,7 @@ export const sendEmail = async ({ to, subject, token, email }) => {
       ">
         <h2 style="color: #ffcc29;">Password Reset Request</h2>
         <p>You requested a password reset. Click the button below to continue:</p>
-        <a href="${resetUrl}" 
+        <a href="${resetUrl}"
           style="
             display: inline-block;
             padding: 0.75rem 1.5rem;

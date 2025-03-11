@@ -50,16 +50,14 @@ export const updatePassword = async (email, newPassword) => {
 
   const hashedPassword = await hash(newPassword, 10);
 
-  await db
-    .collection("users")
-    .updateOne(
-      { email },
-      {
-        $set: {
-          password: hashedPassword,
-          resetToken: null,
-          resetTokenExpiration: null,
-        },
-      }
-    );
+  await db.collection("users").updateOne(
+    { email },
+    {
+      $set: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiration: null,
+      },
+    }
+  );
 };

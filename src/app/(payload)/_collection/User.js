@@ -6,14 +6,13 @@ const Users = {
   access: {
     create: () => true,
     read: ({ req }) => {
-      return !!req.user;
+      console.log("req.user in read (collection):", req.user);
+      return !!req.user; // Allow read if user is authenticated
     },
-    update: ({ req, data }) => {
-      if (req.user.role === "admin" || req.user.id === data.id) return true;
-      return false;
-    },
+
     delete: ({ req }) => {
-      return req.user.role === "admin";
+      console.log("req.user in delete:", req.user);
+      return req.user && req.user.role === "admin"; // Only admin can delete
     },
   },
   fields: [
@@ -83,11 +82,17 @@ const Users = {
     {
       name: "role",
       type: "select",
-      options: ["admin", "editor", "user"],
+      options: ["admin", "user"],
       defaultValue: "user",
       access: {
-        read: ({ req }) => req.user.role === "admin",
-        update: ({ req }) => req.user.role === "admin",
+        read: ({ req }) => {
+          console.log("req.user in read (role field):", req.user);
+          return req.user && req.user.role === "admin";
+        },
+        update: ({ req }) => {
+          console.log("req.user in update (role field):", req.user);
+          return req.user && req.user.role === "admin";
+        },
       },
     },
   ],

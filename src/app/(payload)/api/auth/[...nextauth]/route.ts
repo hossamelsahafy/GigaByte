@@ -19,6 +19,7 @@ const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user, account }) {
+      console.log("JWT Callback:", { token, user, account });
       if (user) {
         token.id = user.id;
         token.firstName = user.name?.split(" ")[0] || "";
@@ -29,11 +30,21 @@ const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
+      console.log("Session Callback:", { session, token });
+      session.user = session.user || {};
+      if (token?.id) {
         session.user.id = token.id;
+      }
+      if (token?.firstName) {
         session.user.firstName = token.firstName;
+      }
+      if (token?.lastName) {
         session.user.lastName = token.lastName;
+      }
+      if (token?.provider) {
         session.user.provider = token.provider;
+      }
+      if (token?.providerId) {
         session.user.providerId = token.providerId;
       }
       return session;
@@ -42,7 +53,6 @@ const authOptions = {
       if (account?.provider === "google") {
         const [firstName, ...lastNameArr] = user.name?.split(" ") || ["", ""];
         const lastName = lastNameArr.join(" ");
-
         user.firstName = firstName;
         user.lastName = lastName;
         user.provider = account.provider;

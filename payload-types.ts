@@ -137,7 +137,9 @@ export interface User {
    * The unique ID provided by the authentication provider.
    */
   providerId?: string | null;
-  role?: ('admin' | 'editor' | 'user') | null;
+  resetToken?: string | null;
+  resetTokenExpiration?: string | null;
+  role?: ('admin' | 'user') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -346,8 +348,11 @@ export interface UsersSelect<T extends boolean = true> {
   lastName?: T;
   password?: T;
   phoneNumber?: T;
+  isVerified?: T;
   provider?: T;
   providerId?: T;
+  resetToken?: T;
+  resetTokenExpiration?: T;
   role?: T;
   updatedAt?: T;
   createdAt?: T;

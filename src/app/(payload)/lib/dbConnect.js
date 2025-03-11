@@ -1,28 +1,35 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.MONGODB_URI; // Standardize to MONGODB_URI
+
+if (!uri) {
+  throw new Error("Please add MONGODB_URI to .env.local");
+}
+
 const options = {
   ssl: true,
   tls: true,
-  tlsAllowInvalidCertificates: true, // Use with caution in production
+  tlsAllowInvalidCertificates: true,
 };
 
 let client;
 let clientPromise;
 
-if (!uri) {
-  throw new Error("Please add your Mongo URI to .env.local");
-}
-
-if (process.env.HOST === "development") {
+if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+    global._mongoClientPromise = client.connect().catch((err) => {
+      console.error("MongoDB connection failed:", err);
+      throw err;
+    });
   }
   clientPromise = global._mongoClientPromise;
 } else {
   client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+  clientPromise = client.connect().catch((err) => {
+    console.error("MongoDB connection failed:", err);
+    throw err;
+  });
 }
 
 export default clientPromise;
