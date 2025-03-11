@@ -4,19 +4,15 @@ import { CiSearch } from "react-icons/ci";
 import { IoMdCart } from "react-icons/io";
 import { FaBars } from "react-icons/fa6";
 import { MdAccountCircle } from "react-icons/md";
-import { useState } from "react";
 import Link from "next/link";
 import NavBar from "./NavBar";
-import { useSession, signOut } from "next-auth/react";
-
+import { useSession } from "next-auth/react";
+import { useAuth } from "../../context/AuthContext";
+import { useState } from "react";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
-
-  const handleSignOut = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    window.location.href = "/auth";
-  };
+  const { name } = useAuth(); // Get the name from context
 
   const right = [
     {
@@ -24,28 +20,18 @@ const Header = () => {
       Icon: <CiSearch />,
     },
     {
-      name: session ? "Profile" : "Account",
+      name: name, // Use the name from context
       Icon: <MdAccountCircle />,
-      link: session ? "/profile" : "/auth",
+      link: name === "Account" ? "/account" : "/auth",
     },
     {
       name: "Cart",
       Icon: <IoMdCart />,
-      link: session ? "/cart" : "/auth",
+      link: name === "Account" ? "/cart" : "/auth",
     },
-    ...(session
-      ? [
-          {
-            name: "Sign Out",
-            Icon: null,
-            link: null,
-            onClick: handleSignOut,
-          },
-        ]
-      : []),
   ];
 
-  const acc = right.find((r) => r.name === (session ? "Profile" : "Account"));
+  const acc = right.find((r) => r.name === name) || { name: "", link: "#" };
 
   if (status === "loading") {
     return <div>Loading...</div>;

@@ -1,7 +1,6 @@
 import { generatePasswordResetToken } from "../../../lib/auth.js";
 import { sendEmail } from "../../../lib/resetEmail";
 
-// Handle POST requests
 export async function POST(req) {
   try {
     const { email } = await req.json();
@@ -13,7 +12,6 @@ export async function POST(req) {
       );
     }
 
-    // Generate a password reset token
     const token = await generatePasswordResetToken(email);
     if (!token) {
       return new Response(
@@ -22,7 +20,6 @@ export async function POST(req) {
       );
     }
 
-    // Send the reset email
     const emailResult = await sendEmail({
       to: email,
       token,

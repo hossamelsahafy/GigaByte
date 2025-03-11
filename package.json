@@ -17,6 +17,7 @@
     "bcryptjs": "^3.0.2",
     "framer-motion": "^12.4.10",
     "graphql": "^16.10.0",
+    "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "next": "^15.2.1",
     "next-auth": "^4.24.11",

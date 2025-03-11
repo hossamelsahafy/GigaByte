@@ -1,27 +1,22 @@
-// components/SignOutButton.js
-"use client"; // Mark this component as a Client Component
-
+"use client";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 
 const SignOutButton = () => {
+  const router = useRouter();
+  const { setName } = useAuth(); // Get the setName function from context
+
   const handleSignOut = async () => {
-    // Call the API route to sign out
-    await fetch("/api/auth/signout", {
-      method: "POST",
-    });
+    try {
+      await signOut({ redirect: false });
+      await localStorage.removeItem("token");
+      setName("SignUp"); // Update the name in context
 
-    // Clear local storage
-    localStorage.clear();
-
-    // Clear cookies (you may need to use a library like js-cookie)
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-
-    // Redirect to the home page or login page
-    window.location.href = "/";
+      router.push("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   return <button onClick={handleSignOut}>Sign Out</button>;

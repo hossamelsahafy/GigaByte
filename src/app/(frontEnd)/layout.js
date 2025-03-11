@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "./_component/home/header";
 import Footer from "./_component/home/footer";
 import SessionProviderWrapper from "./ClientProvider"; // Remove curly braces
+import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,11 @@ export default function Layout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProviderWrapper>
-          <Header />
-          {children}
-          <Footer />
+          <AuthProvider>
+            <Header />
+            {children}
+            <Footer />
+          </AuthProvider>
         </SessionProviderWrapper>
       </body>
     </html>
