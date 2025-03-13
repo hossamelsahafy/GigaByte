@@ -12,12 +12,6 @@ const Footer = () => {
     { name: "Contact Us", link: "/contact-us" },
   ];
 
-  const collections = [
-    { name: "New Laptops", link: "/new-laptops" },
-    { name: "Used Laptops", link: "/used-laptops" },
-    { name: "Accessories", link: "/accessories" },
-  ];
-
   const socialMedia = [
     { name: "Facebook", icon: <FaFacebook />, link: "#" },
     { name: "Twitter", icon: <FaTwitter />, link: "#" },
@@ -29,6 +23,7 @@ const Footer = () => {
     <footer className="bg-[var(--slide-bar)] text-white py-10 mt-20">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Logo Section */}
           <div className="flex flex-col items-center lg:items-start">
             <Image src="/Logo.png" width={200} height={100} alt="logo" />
             <p className="mt-4 text-center lg:text-left">
@@ -37,6 +32,7 @@ const Footer = () => {
             </p>
           </div>
 
+          {/* Quick Links */}
           <div className="flex lg:my-0 mt-12 flex-col items-center lg:items-start">
             <h3 className="text-xl font-[600] mb-4">Quick Links</h3>
             <ul className="space-y-2">
@@ -53,22 +49,16 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Contact Us Section */}
           <div className="flex flex-col items-center lg:items-start">
-            <h3 className="text-xl font-[600] mb-4">Collections</h3>
-            <ul className="space-y-2">
-              {collections.map((c, index) => (
-                <li key={index}>
-                  <Link
-                    href={c.link}
-                    className="hover:text-[var(--hover-color)]"
-                  >
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <h3 className="text-xl font-[600] mb-4">Contact Us</h3>
+            <div className="space-y-2">
+              <p>Email: gigabyte.info.010@gmail.com</p>
+              <p>Phone: +201002750048</p>
+            </div>
           </div>
 
+          {/* Follow Us Section */}
           <div className="flex flex-col items-center lg:items-start">
             <h3 className="text-xl font-[600] mb-4">Follow Us</h3>
             <div className="flex space-x-4">
@@ -82,9 +72,6 @@ const Footer = () => {
                 </Link>
               ))}
             </div>
-            <h3 className="text-xl font-[600] mt-6 mb-4">Contact Us</h3>
-            <p>Email: gigabyte.info.010@gmail.com</p>
-            <p>Phone: +201002750048</p>
           </div>
         </div>
 

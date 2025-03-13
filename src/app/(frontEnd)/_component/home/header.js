@@ -6,13 +6,14 @@ import { FaBars } from "react-icons/fa6";
 import { MdAccountCircle } from "react-icons/md";
 import Link from "next/link";
 import NavBar from "./NavBar";
-import { useSession } from "next-auth/react";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
+import { useCart } from "../../context/CartContext";
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session, status } = useSession();
-  const { name } = useAuth(); // Get the name from context
+  const { name } = useAuth();
+  const { cartItems } = useCart();
 
   const right = [
     {
@@ -20,22 +21,27 @@ const Header = () => {
       Icon: <CiSearch />,
     },
     {
-      name: name, // Use the name from context
+      name: name,
       Icon: <MdAccountCircle />,
       link: name === "Account" ? "/account" : "/auth",
     },
     {
       name: "Cart",
-      Icon: <IoMdCart />,
+      Icon: (
+        <div className="relative">
+          <IoMdCart />
+          {cartItems.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+              {cartItems.length}
+            </span>
+          )}
+        </div>
+      ),
       link: name === "Account" ? "/cart" : "/auth",
     },
   ];
 
   const acc = right.find((r) => r.name === name) || { name: "", link: "#" };
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
 
   return (
     <>
@@ -55,8 +61,6 @@ const Header = () => {
                 <li className="font-[600] text-3xl mr-2 hover:text-[var(--hover-color)]">
                   {r.link ? (
                     <Link href={r.link}>{r.Icon || r.name}</Link>
-                  ) : r.onClick ? (
-                    <button onClick={r.onClick}>{r.name}</button>
                   ) : (
                     r.Icon || r.name
                   )}
@@ -76,20 +80,16 @@ const Header = () => {
           />
         </div>
 
-        <div className="hidden lg:flex font-[600] justify-end gap-5 cursor-pointer">
+        <div className="hidden lg:flex font-[600] justify-end gap-5 cursor-pointer relative">
           {right.map((r, index) => (
             <div
               key={index}
-              className="flex items-center hover:text-[var(--hover-color)]"
+              className="flex items-center hover:text-[var(--hover-color)] relative"
             >
-              {r.link ? (
-                <Link href={r.link}>{r.name}</Link>
-              ) : r.onClick ? (
-                <button onClick={r.onClick}>{r.name}</button>
-              ) : (
-                r.name
-              )}
-              {r.Icon && <span className="text-2xl ml-2">{r.Icon}</span>}
+              <Link href={r.link || "#"} className="flex items-center gap-1">
+                <span>{r.name}</span>
+                {r.Icon && <span className="text-2xl ml-1">{r.Icon}</span>}
+              </Link>
             </div>
           ))}
         </div>

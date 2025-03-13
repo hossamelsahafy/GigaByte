@@ -1,7 +1,13 @@
 const Orders = {
   slug: "orders",
   admin: {
-    useAsTitle: "status", // ✅ Change "name" to "status" or "user"
+    useAsTitle: "status",
+  },
+  access: {
+    read: () => true,
+    create: () => true,
+    update: () => false,
+    delete: () => false,
   },
   fields: [
     {
@@ -44,6 +50,9 @@ const Orders = {
       ],
       defaultValue: "not_confirmed",
       required: true,
+      admin: {
+        readOnly: true,
+      },
     },
     {
       name: "totalAmount",
@@ -64,9 +73,12 @@ const Orders = {
   ],
   hooks: {
     beforeChange: [
-      ({ data }) => {
+      ({ data, req }) => {
         if (!data.createdAt) {
           data.createdAt = new Date();
+        }
+        if (!data.user && req.user) {
+          data.user = req.user.id;
         }
         return data;
       },

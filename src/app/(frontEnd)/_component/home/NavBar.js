@@ -1,25 +1,16 @@
 "use client";
 import Link from "next/link";
 import { FaTimes } from "react-icons/fa";
-import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import Image from "next/image";
 import { useState } from "react";
 
 const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
-  const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
-
   const elements = [
     { name: "Home", link: "/" },
     { name: "Collections", link: "/#collections" },
     { name: "Top Selling", link: "/#top-selling" },
     { name: "About", link: "/about" },
     { name: "Contact Us", link: "/contact-us" },
-  ];
-
-  const collections = [
-    { name: "New Laptops", link: "/new-laptops" },
-    { name: "Used Laptops", link: "/used-laptops" },
-    { name: "Accessories", link: "/accessories" },
   ];
 
   return (
@@ -51,57 +42,16 @@ const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
         <div className="flex flex-col items-center justify-center h-full gap-6 text-2xl font-[600] -mt-20">
           <Image src="/Logo.png" width={400} height={200} alt="logo" />
 
-          {elements.map((e, index) =>
-            e.name === "Collections" ? (
-              <div
-                key={index}
-                className="flex flex-col items-center w-full ml-2 "
-              >
-                <button
-                  className="hover:text-[var(--hover-color)] mb-5 flex items-center gap-0 "
-                  onClick={() => setIsCollectionsOpen(!isCollectionsOpen)}
-                >
-                  {e.name}
-                  <div
-                    className={`transition-transform duration-300  ${
-                      isCollectionsOpen ? "rotate-90" : "rotate-0"
-                    }`}
-                  >
-                    <FaChevronRight />
-                  </div>
-                </button>
-                <div
-                  className={`transition-all duration-500 overflow-hidden ${
-                    isCollectionsOpen
-                      ? "max-h-60 opacity-100"
-                      : "max-h-0 opacity-0"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    {collections.map((c, idx) => (
-                      <Link
-                        key={idx}
-                        href={c.link}
-                        className="text-lg hover:text-[var(--hover-color)]"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {c.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <Link
-                key={index}
-                href={e.link}
-                className="hover:text-[var(--hover-color)] mb-5"
-                onClick={() => setIsOpen(false)}
-              >
-                {e.name}
-              </Link>
-            )
-          )}
+          {elements.map((e, index) => (
+            <Link
+              key={index}
+              href={e.link}
+              className="hover:text-[var(--hover-color)] mb-5"
+              onClick={() => setIsOpen(false)}
+            >
+              {e.name}
+            </Link>
+          ))}
 
           {accountName && accountLink && (
             <Link

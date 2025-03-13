@@ -3,6 +3,12 @@ const Products = {
   admin: {
     useAsTitle: "name",
   },
+  access: {
+    read: () => true,
+    create: ({ req }) => req.user?.role === "admin",
+    update: ({ req }) => req.user?.role === "admin",
+    delete: ({ req }) => req.user?.role === "admin",
+  },
   fields: [
     {
       name: "name",

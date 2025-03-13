@@ -7,12 +7,17 @@ const Users = {
     create: () => true,
     read: ({ req }) => {
       console.log("req.user in read (collection):", req.user);
-      return !!req.user; // Allow read if user is authenticated
+      return !!req.user;
     },
 
-    delete: ({ req }) => {
-      console.log("req.user in delete:", req.user);
-      return req.user && req.user.role === "admin"; // Only admin can delete
+    delete: async ({ req, id }) => {
+      if (!req.user) return false;
+
+      const client = await clientPromise;
+      const db = client.db("GigaByte");
+      const user = await db.collection("users").findOne({ id: req.user.id });
+
+      return req.user.role === "admin" || user?._id.toString() === id;
     },
   },
   fields: [

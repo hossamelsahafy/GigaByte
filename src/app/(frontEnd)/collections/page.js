@@ -5,17 +5,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Image from "next/image";
+import Link from "next/link";
+import { useCategories } from "../context/categoriesContext";
 const Page = () => {
-  const collections = [
-    {
-      name: "New LapTops",
-      image: "/try.png",
-    },
-    { name: "Used LapTops", image: "/Used.png" },
-    { name: "Accessories", image: "/Acc.jpg" },
-    { name: "Used LapTops", image: "/Used.png" },
-    { name: "Accessories", image: "/Acc.jpg" },
-  ];
+  const { categories } = useCategories();
+  console.log(categories);
 
   return (
     <div id="collections" className="flex flex-col items-center mt-10 mb-10">
@@ -45,17 +39,19 @@ const Page = () => {
             },
           }}
         >
-          {collections.map((c, index) => (
+          {categories.map((c, index) => (
             <SwiperSlide key={index}>
               <div className="group bg-[var(--button-bg)]  p-6 rounded-lg shadow-lg text-white w-full h-[400px] flex flex-col items-center relative overflow-hidden cursor-grab">
                 <p className="text-xl font-[900] mb-4">{c.name}</p>
 
-                <button className="z-100 mb-7 absolute bottom-0 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity duration-300 bg-[var(--button-bg)] text-white px-6 py-2 rounded-lg hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833] mt-12">
-                  View More
-                </button>
+                <Link href={`/collections/${c.id}/products`} passHref>
+                  <button className="z-100 mb-7 absolute bottom-0 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity duration-300 bg-[var(--button-bg)] text-white px-6 py-2 rounded-lg hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833] mt-12">
+                    View More
+                  </button>
+                </Link>
 
                 <Image
-                  src={c.image}
+                  src={c.image.url}
                   alt={c.name}
                   width={400}
                   height={200}
