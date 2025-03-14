@@ -1,40 +1,40 @@
-import admin from "firebase-admin";
-import { getStorage } from "firebase-admin/storage";
-import fs from "fs";
-
-// Read Firebase credentials from file
-const serviceAccount = JSON.parse(
-  fs.readFileSync(process.env.FIREBASE_ADMIN_SDK_KEY, "utf8")
-);
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  });
-}
-
-const bucket = getStorage().bucket();
+import cloudinary from "../lib/cloudinary";
 
 const Media = {
   slug: "media",
   upload: {
-    staticURL: "/media",
-    staticDir: "media",
-    handler: async ({ data, file }) => {
-      const uploadPath = `uploads/${file.filename}`;
-      const fileUpload = bucket.file(uploadPath);
-
-      await fileUpload.save(file.buffer, {
-        metadata: { contentType: file.mimetype },
-      });
-
-      return {
-        url: `https://storage.googleapis.com/${process.env.FIREBASE_STORAGE_BUCKET}/${uploadPath}`,
-      };
+    staticURL: null,
+    staticDir: null,
+    handler: async ({ file }) => {
+      "use server";
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "uploads", resource_type: "auto" },
+            (error, result) => {
+              if (error) reject(new Error("Upload failed"));
+              else resolve(result);
+            }
+          );
+          uploadStream.end(file.buffer);
+        });
+        return { url: result.secure_url }; // Directly return Cloudinary URL
+      } catch (error) {
+        throw new Error("Upload failed");
+      }
     },
   },
-  fields: [],
+  fields: [
+    {
+      name: "url", // Use default 'url' field name
+      type: "text",
+      label: "Cloudinary URL",
+      admin: { readOnly: true },
+    },
+    // Keep default media fields if needed
+    { name: "filename", type: "text", admin: { readOnly: true } },
+    { name: "mimeType", type: "text", admin: { readOnly: true } },
+  ],
 };
 
 export default Media;
