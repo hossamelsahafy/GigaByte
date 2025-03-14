@@ -17,6 +17,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
+    "firebase": "^11.4.0",
     "firebase-admin": "^13.2.0",
     "framer-motion": "^12.4.10",
     "graphql": "^16.10.0",
