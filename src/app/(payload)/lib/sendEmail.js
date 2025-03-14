@@ -19,7 +19,6 @@ const transporter = nodemailer.createTransport({
 
 export async function sendMail({ email, sendTo, subject, text, html }) {
   try {
-    // Verify the transporter configuration
     const isVerified = await transporter.verify();
     if (!isVerified) {
       throw new Error("Transporter configuration is invalid");
