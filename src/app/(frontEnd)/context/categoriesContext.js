@@ -9,9 +9,7 @@ export const CategoriesProvider = ({ children }) => {
   useEffect(() => {
     const getCategories = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_HOST}/api/categories`
-        );
+        const res = await fetch(`/api/categories`);
 
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);

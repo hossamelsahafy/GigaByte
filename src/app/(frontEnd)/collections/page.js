@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useCategories } from "../context/categoriesContext";
 const Page = () => {
   const { categories } = useCategories();
-  console.log(categories);
 
   return (
     <div id="collections" className="flex flex-col items-center mt-10 mb-10">
