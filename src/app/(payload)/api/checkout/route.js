@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.MONGODB_URI;
 let clientPromise = null;
 
 async function getDb() {
