@@ -18,7 +18,6 @@ export default async function handler(
     // @ts-ignore
     const payload = req.payload;
 
-    // Check if the user already exists
     const existingUser = await payload.find({
       collection: "users",
       where: {
