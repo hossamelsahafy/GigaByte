@@ -49,7 +49,7 @@ const Page = () => {
                   </button>
                 </Link>
 
-                <img
+                <Image
                   src={c.image.url}
                   alt={c.name}
                   width={400}
