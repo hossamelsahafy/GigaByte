@@ -9,12 +9,6 @@ import Link from "next/link";
 import { useCategories } from "../context/categoriesContext";
 const Page = () => {
   const { categories } = useCategories();
-  const BASE_URL = process.env.NEXT_PUBLIC_HOST;
-
-  const getImageUrl = (image) => {
-    if (!image?.url) return "/fallback-image.png";
-    return image.url.startsWith("http") ? image.url : `${BASE_URL}${image.url}`;
-  };
 
   return (
     <div id="collections" className="flex flex-col items-center mt-10 mb-10">
@@ -56,7 +50,7 @@ const Page = () => {
                 </Link>
 
                 <Image
-                  src={getImageUrl(c.image)}
+                  src={NEXT_PUBLIC_HOST / c.image.url}
                   alt={c.name}
                   width={400}
                   height={200}
