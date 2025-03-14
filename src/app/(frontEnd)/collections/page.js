@@ -9,11 +9,7 @@ import Link from "next/link";
 import { useCategories } from "../context/categoriesContext";
 const Page = () => {
   const { categories } = useCategories();
-  const BASE_URL = process.env.NEXT_PUBLIC_HOST;
-  const getImageUrl = (image) => {
-    if (!image?.url) return "/try.png";
-    return image.url.startsWith("http") ? image.url : `${BASE_URL}${image.url}`;
-  };
+
   return (
     <div id="collections" className="flex flex-col items-center mt-10 mb-10">
       <h2 className="font-[600] text-center lg:text-4xl text-2xl text-[var(--hover-color)] mb-6">
@@ -54,11 +50,10 @@ const Page = () => {
                 </Link>
 
                 <Image
-                  src={getImageUrl(c.image)}
+                  src={c.image.url}
                   alt={c.name}
                   width={400}
                   height={200}
-                  unoptimized={true}
                   className="absolute bottom-0 left-0 w-full h-[300px] object-cover rounded-md transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
