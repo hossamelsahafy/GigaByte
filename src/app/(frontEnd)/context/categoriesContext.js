@@ -23,9 +23,7 @@ export const CategoriesProvider = ({ children }) => {
           (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
         );
         setCategories(sortedCategories);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
+      } catch (error) {}
     };
 
     getCategories();

@@ -1,19 +1,21 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { jwtDecode } from "jwt-decode";
 import { IoLogOut, IoTrash, IoRefresh } from "react-icons/io5";
 import { useOrders } from "../context/OrderContext";
-
+import { useUser } from "../context/UserContext.js";
 export default function AccountPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const { orders, loading, error } = useOrders();
+  const { currentUser, setCurrentUser } = useUser();
 
   const [user, setUser] = useState(null);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [provider, setProvider] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
@@ -21,32 +23,19 @@ export default function AccountPage() {
   const [id, setId] = useState("");
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (!currentUser) return;
 
-    try {
-      const token =
-        session?.token ||
-        (typeof window !== "undefined" && localStorage.getItem("token"));
-
-      if (!token) throw new Error("No valid session or token found");
-
-      const decodedUser = jwtDecode(token);
-
-      if (!decodedUser) throw new Error("Invalid session token");
-
-      setUser(decodedUser);
-      setId(decodedUser.id);
-      setName(decodedUser.name || decodedUser.firstName);
-      setPhone(decodedUser.phoneNumber || "");
-      setProvider(decodedUser.provider);
-    } catch (err) {
-      setLocalError(err.message);
-    }
-  }, [session, status]);
+    setFirstName(currentUser.firstName || "");
+    setLastName(currentUser.lastName || "");
+    setId(currentUser.id || "");
+    setPhoneNumber(currentUser.phoneNumber || "");
+    setProvider(currentUser.provider || "");
+  }, [currentUser]);
 
   const handleDelete = async () => {
     if (orders.length > 0) {
       setLocalError("Cannot delete account with active orders!");
+      setTimeout(() => setLocalError(""), 5000);
       return;
     }
 
@@ -55,14 +44,15 @@ export default function AccountPage() {
 
       if (!token) {
         setLocalError("Authentication error. Please sign in again.");
+        setTimeout(() => setLocalError(""), 5000);
         return;
       }
 
-      const res = await fetch(`/api/auth/user/${id}`, {
+      const res = await fetch(`/api/auth/user/${currentUser.id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.token}`,
         },
       });
 
@@ -76,6 +66,7 @@ export default function AccountPage() {
       } else {
         const errorData = await res.json();
         setLocalError(errorData.error || "Failed to delete account.");
+        setTimeout(() => setLocalError(""), 5000);
       }
     } catch (err) {
       setLocalError("An error occurred while deleting your account.");
@@ -84,19 +75,37 @@ export default function AccountPage() {
 
   const handleUpdate = async () => {
     try {
-      const res = await fetch(`/api/users/${user.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ name, phone, password }),
-        headers: { "Content-Type": "application/json" },
-      });
+      console.log(currentUser);
+
+      const token = session?.token;
+      console.log(token);
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_HOST}/api/auth/user/${currentUser._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.token}`,
+          },
+          body: JSON.stringify({ firstName, lastName, phoneNumber, password }),
+        }
+      );
 
       if (res.ok) {
+        await update();
         setSuccessMessage("Profile updated successfully!");
+        setTimeout(() => setSuccessMessage(""), 5000);
       } else {
-        setLocalError("Failed to update profile.");
+        const errorData = await res.json();
+        setLocalError(errorData.error || "Failed to update profile.");
+        setTimeout(() => setLocalError(""), 5000);
       }
     } catch (err) {
+      console.log(err);
+
       setLocalError("An error occurred while updating your profile.");
+      setTimeout(() => setLocalError(""), 5000);
     }
   };
 
@@ -110,7 +119,9 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-white flex flex-col items-center p-6">
-      <h1 className="text-4xl font-bold mb-8">Account</h1>
+      <h1 className="text-4xl font-bold text-[var(--accent-color)] mb-8">
+        Account
+      </h1>
 
       {successMessage && (
         <p className="bg-green-600 text-white p-3 rounded-lg w-full max-w-md text-center">
@@ -125,14 +136,29 @@ export default function AccountPage() {
 
       <div className="w-full max-w-2xl shadow-lg rounded-lg p-6 bg-[#161B22]">
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Profile</h2>
+          <h2 className="text-2xl flex justify-center  font-semibold mb-4">
+            Profile
+          </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-lg font-semibold mb-2">Name</label>
+              <label className="block text-lg font-semibold mb-2">
+                FirstName
+              </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full p-2 border rounded-lg bg-[#0D1117] text-white"
+              />
+            </div>
+            <div className="space-y-4">
+              <label className="block text-lg font-semibold mb-2">
+                lastName
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 className="w-full p-2 border rounded-lg bg-[#0D1117] text-white"
               />
             </div>
@@ -140,25 +166,27 @@ export default function AccountPage() {
               <label className="block text-lg font-semibold mb-2">Phone</label>
               <input
                 type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full p-2 border rounded-lg bg-[#0D1117] text-white"
               />
             </div>
-            {provider === "credential" ||
-              ("local" && (
-                <div>
-                  <label className="block text-lg font-semibold mb-2">
-                    New Password
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-2 border rounded-lg bg-[#0D1117] text-white"
-                  />
-                </div>
-              ))}
+            {provider === "local" ? (
+              <div>
+                <label className="block text-lg font-semibold mb-2">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-2 border rounded-lg bg-[#0D1117] text-white"
+                />
+              </div>
+            ) : (
+              ""
+            )}
+
             <button
               onClick={handleUpdate}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center gap-2"

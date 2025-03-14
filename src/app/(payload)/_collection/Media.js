@@ -1,3 +1,4 @@
+/** @type {import('payload/types').CollectionConfig} */
 const Media = {
   slug: "media",
   access: {
@@ -33,6 +34,26 @@ const Media = {
   },
   admin: {
     useAsTitle: "filename",
+  },
+  hooks: {
+    beforeOperation: [
+      async ({ args, operation }) => {
+        if (
+          operation === "read" ||
+          operation === "update" ||
+          operation === "delete"
+        ) {
+          const { req } = args;
+          const { getSession } = await import("next-auth/react");
+          const session = await getSession({ req });
+          console.log("NextAuth session in hook (Media):", session);
+          if (session) {
+            req.user = session.user;
+          }
+        }
+        return args;
+      },
+    ],
   },
   fields: [
     {

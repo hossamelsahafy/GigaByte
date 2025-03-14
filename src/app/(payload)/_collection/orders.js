@@ -1,3 +1,4 @@
+/** @type {import('payload/types').CollectionConfig} */
 const Orders = {
   slug: "orders",
   admin: {
@@ -8,6 +9,37 @@ const Orders = {
     create: () => true,
     update: () => false,
     delete: () => false,
+  },
+  hooks: {
+    beforeOperation: [
+      async ({ args, operation }) => {
+        if (
+          operation === "read" ||
+          operation === "update" ||
+          operation === "delete"
+        ) {
+          const { req } = args;
+          const { getSession } = await import("next-auth/react");
+          const session = await getSession({ req });
+          console.log("NextAuth session in hook (Orders):", session);
+          if (session) {
+            req.user = session.user;
+          }
+        }
+        return args;
+      },
+    ],
+    beforeChange: [
+      ({ data, req }) => {
+        if (!data.createdAt) {
+          data.createdAt = new Date();
+        }
+        if (!data.user && req.user) {
+          data.user = req.user.id;
+        }
+        return data;
+      },
+    ],
   },
   fields: [
     {
@@ -71,19 +103,6 @@ const Orders = {
       defaultValue: () => new Date(),
     },
   ],
-  hooks: {
-    beforeChange: [
-      ({ data, req }) => {
-        if (!data.createdAt) {
-          data.createdAt = new Date();
-        }
-        if (!data.user && req.user) {
-          data.user = req.user.id;
-        }
-        return data;
-      },
-    ],
-  },
 };
 
 export default Orders;

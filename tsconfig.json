@@ -38,7 +38,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/(payload)/_collection/Comments.js", "src/app/(payload)/_collection/orders.js", "src/app/(payload)/_collection/Products.js", "src/app/(payload)/lib/payload.js"  ],
+, "src/app/(payload)/_collection/Comments.js", "src/app/(payload)/_collection/orders.js", "src/app/(payload)/_collection/Products.js", "src/app/(payload)/lib/payload.js", "src/app/(payload)/api/graphql/route.js", "src/app/(payload)/api/graphql-playground/route.js", "src/app/(payload)/_collection/User.js", "src/app/(payload)/_collection/User.js"  ],
   "exclude": [
     "node_modules"
   ]

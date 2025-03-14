@@ -8,7 +8,7 @@ import { ProductsProvider } from "./context/ProductsContext";
 import { CategoriesProvider } from "./context/categoriesContext";
 import { CartProvider } from "./context/CartContext";
 import { OrdersProvider } from "./context/OrderContext";
-
+import { UserProvider } from "./context/UserContext.js";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,9 +36,11 @@ export default function Layout({ children }) {
               <ProductsProvider>
                 <CartProvider>
                   <OrdersProvider>
-                    <Header />
-                    {children}
-                    <Footer />
+                    <UserProvider>
+                      <Header />
+                      {children}
+                      <Footer />
+                    </UserProvider>
                   </OrdersProvider>
                 </CartProvider>
               </ProductsProvider>

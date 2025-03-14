@@ -70,7 +70,6 @@ export interface Config {
     products: Product;
     media: Media;
     categories: Category;
-    comments: Comment;
     orders: Order;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,7 +81,6 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    comments: CommentsSelect<false> | CommentsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -130,12 +128,13 @@ export interface User {
   lastName: string;
   phoneNumber?: string | null;
   /**
+   * Indicates whether the user's email is verified.
+   */
+  isVerified?: boolean | null;
+  /**
    * The authentication provider (e.g., 'google', 'facebook', 'local').
    */
   provider?: string | null;
-  /**
-   * The unique ID provided by the authentication provider.
-   */
   providerId?: string | null;
   resetToken?: string | null;
   resetTokenExpiration?: string | null;
@@ -151,7 +150,7 @@ export interface User {
   _verificationToken?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
-  password?: string | null;
+  password: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -233,22 +232,6 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments".
- */
-export interface Comment {
-  id: string;
-  user: string | User;
-  product: string | Product;
-  comment: string;
-  /**
-   * Check this box to approve the comment and make it visible to others.
-   */
-  isApproved?: boolean | null;
-  createdAt: string;
-  updatedAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders".
  */
 export interface Order {
@@ -288,10 +271,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: string | Category;
-      } | null)
-    | ({
-        relationTo: 'comments';
-        value: string | Comment;
       } | null)
     | ({
         relationTo: 'orders';
@@ -448,18 +427,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   products?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments_select".
- */
-export interface CommentsSelect<T extends boolean = true> {
-  user?: T;
-  product?: T;
-  comment?: T;
-  isApproved?: T;
-  createdAt?: T;
-  updatedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

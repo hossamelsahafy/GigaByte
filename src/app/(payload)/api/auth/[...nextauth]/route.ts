@@ -1,13 +1,36 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "../../../lib/dbConnect.js";
+import clientPromise from "../../../lib/dbConnect.js"; // JS file import
 import { compare } from "bcryptjs";
 import jwt from "jsonwebtoken";
+import type { MongoClient } from "mongodb";
 
-const authOptions = {
+// Type assertion for clientPromise to resolve the 'any' issue
+const typedClientPromise: Promise<MongoClient> = clientPromise;
+
+interface CustomUser extends User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  phoneNumber?: string;
+}
+
+interface CustomToken {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  provider: string;
+  phoneNumber?: string | null;
+  iat?: number;
+  exp?: number;
+}
+
+const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -23,8 +46,12 @@ const authOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        const client = await clientPromise;
+      async authorize(credentials): Promise<CustomUser | null> {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required.");
+        }
+
+        const client = await typedClientPromise;
         const db = client.db();
 
         const user = await db
@@ -33,7 +60,7 @@ const authOptions = {
         if (!user) {
           throw new Error("No user found with this email.");
         }
-        console.log(user);
+        console.log("Found user:", user);
 
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
@@ -45,41 +72,42 @@ const authOptions = {
           name: `${user.firstName} ${user.lastName}`,
           email: user.email,
           role: user.role || "user",
-          phoneNumber: user.phoneNumber || "",
+          phoneNumber: user.phoneNumber || undefined,
         };
       },
     }),
   ],
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(typedClientPromise),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account }): Promise<CustomToken> {
       if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.role = user.role || "user";
+        const customUser = user as CustomUser;
+        token.id = customUser.id;
+        token.name = customUser.name;
+        token.email = customUser.email;
+        token.role = customUser.role || "user";
         token.provider = account?.provider || "credentials";
-
-        token.phoneNumber = user.phoneNumber ? user.phoneNumber : null;
+        token.phoneNumber = customUser.phoneNumber || null;
       }
-      return token;
+      return token as CustomToken;
     },
-    async session({ token }) {
+    async session({ token }): Promise<{ token: string }> {
+      const customToken = token as CustomToken;
       return {
         token: jwt.sign(
           {
-            id: token.id,
-            email: token.email,
-            role: token.role,
-            name: token.name,
-            provider: token.provider,
-            phoneNumber: token.phoneNumber,
+            id: customToken.id,
+            email: customToken.email,
+            role: customToken.role,
+            name: customToken.name,
+            provider: customToken.provider,
+            phoneNumber: customToken.phoneNumber,
           },
-          process.env.JWT_SECRET,
+          process.env.JWT_SECRET!,
           { expiresIn: "7d" }
         ),
       };

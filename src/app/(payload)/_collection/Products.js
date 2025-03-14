@@ -1,3 +1,4 @@
+/** @type {import('payload/types').CollectionConfig} */
 const Products = {
   slug: "products",
   admin: {
@@ -8,6 +9,26 @@ const Products = {
     create: ({ req }) => req.user?.role === "admin",
     update: ({ req }) => req.user?.role === "admin",
     delete: ({ req }) => req.user?.role === "admin",
+  },
+  hooks: {
+    beforeOperation: [
+      async ({ args, operation }) => {
+        if (
+          operation === "read" ||
+          operation === "update" ||
+          operation === "delete"
+        ) {
+          const { req } = args;
+          const { getSession } = await import("next-auth/react");
+          const session = await getSession({ req });
+          console.log("NextAuth session in hook (Products):", session);
+          if (session) {
+            req.user = session.user;
+          }
+        }
+        return args;
+      },
+    ],
   },
   fields: [
     {
