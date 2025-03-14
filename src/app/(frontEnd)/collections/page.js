@@ -58,6 +58,7 @@ const Page = () => {
                   alt={c.name}
                   width={400}
                   height={200}
+                  unoptimized={true}
                   className="absolute bottom-0 left-0 w-full h-[300px] object-cover rounded-md transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
