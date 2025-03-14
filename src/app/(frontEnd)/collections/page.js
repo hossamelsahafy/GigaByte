@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useCategories } from "../context/categoriesContext";
 const Page = () => {
   const { categories } = useCategories();
+  const BASE_URL = process.env.NEXT_PUBLIC_HOST;
   const getImageUrl = (image) => {
     if (!image?.url) return "/try.png";
     return image.url.startsWith("http") ? image.url : `${BASE_URL}${image.url}`;
