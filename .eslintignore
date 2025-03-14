@@ -1,0 +1,1 @@
+src/app/(payload)/api/auth/[...nextauth]/route.ts

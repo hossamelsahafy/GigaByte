@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "types": [
-      "next"
+      "next",
+      "node" // Add this to ensure Node.js types are included
     ],
     "paths": {
       "@payload-config": [
@@ -15,18 +16,18 @@
       "esnext"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true, // This skips type checking of declaration files, which might hide issues
     "strict": true,
     "noEmit": true,
     "incremental": true,
-    "module": "node16",
+    "module": "node16", // Consider switching to "esnext" for Next.js compatibility
     "esModuleInterop": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "node16", // Consider switching to "node" or "bundler" for Next.js
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "baseUrl": "."
-    ,
+    "baseUrl": ".",
+    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "next"
@@ -37,9 +38,17 @@
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "src/app/(payload)/_collection/Comments.js", "src/app/(payload)/_collection/orders.js", "src/app/(payload)/_collection/Products.js", "src/app/(payload)/lib/payload.js", "src/app/(payload)/api/graphql/route.js", "src/app/(payload)/api/graphql-playground/route.js", "src/app/(payload)/_collection/User.js", "src/app/(payload)/_collection/User.js"  ],
+    "**/*.tsx",
+    "src/app/(payload)/_collection/Comments.js",
+    "src/app/(payload)/_collection/orders.js",
+    "src/app/(payload)/_collection/Products.js",
+    "src/app/(payload)/lib/payload.js",
+    "src/app/(payload)/api/graphql/route.js",
+    "src/app/(payload)/api/graphql-playground/route.js",
+    "src/app/(payload)/_collection/User.js"
+  ],
   "exclude": [
     "node_modules"
+    // Removed "src/app/(payload)/api/auth/[...nextauth]/route.ts" from exclude
   ]
 }

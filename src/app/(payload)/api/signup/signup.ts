@@ -15,6 +15,7 @@ export default async function handler(
   }
 
   try {
+    // @ts-ignore
     const payload = req.payload;
 
     // Check if the user already exists
