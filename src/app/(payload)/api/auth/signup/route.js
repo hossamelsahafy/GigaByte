@@ -2,7 +2,7 @@ import { hash } from "bcryptjs";
 import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.MONGODB_URI;
 let clientPromise = null;
 
 async function getDb() {

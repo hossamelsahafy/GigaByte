@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (status === "loading") return; // Wait for session to load
+      if (status === "loading") return;
 
       if (!session || !session.token) {
         setLoading(false);

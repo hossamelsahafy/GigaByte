@@ -1,39 +1,15 @@
-import cloudinary from "../lib/cloudinary";
-
+// Media.js - Fix the collection definition
 const Media = {
   slug: "media",
-  upload: {
-    staticURL: null,
-    staticDir: null,
-    handler: async ({ file }) => {
-      "use server";
-      try {
-        const result = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: "uploads", resource_type: "auto" },
-            (error, result) => {
-              if (error) reject(new Error("Upload failed"));
-              else resolve(result);
-            }
-          );
-          uploadStream.end(file.buffer);
-        });
-        return { url: result.secure_url }; // Directly return Cloudinary URL
-      } catch (error) {
-        throw new Error("Upload failed");
-      }
-    },
-  },
+  upload: true,
   fields: [
+    // ✅ Must have this array (even if empty)
+    // Add any custom fields here
     {
-      name: "url", // Use default 'url' field name
+      name: "altText",
       type: "text",
-      label: "Cloudinary URL",
-      admin: { readOnly: true },
+      label: "Alt Text",
     },
-    // Keep default media fields if needed
-    { name: "filename", type: "text", admin: { readOnly: true } },
-    { name: "mimeType", type: "text", admin: { readOnly: true } },
   ],
 };
 

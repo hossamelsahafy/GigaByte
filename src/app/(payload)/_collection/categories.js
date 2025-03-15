@@ -41,8 +41,7 @@ const Categories = {
     },
     {
       name: "image",
-      type: "upload",
-      relationTo: "media",
+      type: "text",
       required: true,
       label: "Category Image",
     },
