@@ -214,7 +214,7 @@ export interface Media {
   prefix?: string | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
+  url: string;
   thumbnailURL?: string | null;
   filename?: string | null;
   mimeType?: string | null;

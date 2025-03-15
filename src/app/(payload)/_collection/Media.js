@@ -1,10 +1,12 @@
-// Media.js - Fix the collection definition
 const Media = {
   slug: "media",
-  upload: true,
   fields: [
-    // ✅ Must have this array (even if empty)
-    // Add any custom fields here
+    {
+      name: "url",
+      type: "text",
+      label: "Supabase URL",
+      required: true,
+    },
     {
       name: "altText",
       type: "text",

@@ -2,36 +2,54 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY // Make sure this is the SERVICE ROLE KEY
 );
 
-export const uploadFile = async (
-  buffer,
-  filename,
-  bucket = "gigabyteimages"
-) => {
-  const fileExtension = filename.split(".").pop();
-  const uniqueFilename = `${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2, 15)}.${fileExtension}`;
-  const filePath = `seo/${uniqueFilename}`;
+const Media = {
+  slug: "media",
+  upload: false, // Disable Payload's default upload handling
+  fields: [
+    {
+      name: "url",
+      type: "text",
+      label: "Image URL",
+      required: true,
+    },
+    {
+      name: "altText",
+      type: "text",
+      label: "Alt Text",
+    },
+  ],
+  hooks: {
+    beforeChange: [
+      async ({ data, req }) => {
+        if (!req?.files?.file) {
+          throw new Error("No file uploaded");
+        }
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(filePath, buffer);
+        const file = req.files.file;
+        const fileExt = file.name.split(".").pop();
+        const filePath = `uploads/${Date.now()}.${fileExt}`;
 
-  if (error) {
-    throw new Error(`Supabase upload failed: ${error.message}`);
-  }
+        // 🔥 Upload file to Supabase
+        const { data: uploadData, error } = await supabase.storage
+          .from("media")
+          .upload(filePath, file.data, {
+            contentType: file.mimetype,
+          });
 
-  return {
-    path: data.path,
-    publicUrl: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${data.path}`,
-  };
+        if (error) {
+          throw new Error(`Supabase upload failed: ${error.message}`);
+        }
+
+        data.url = `${process.env.SUPABASE_URL}/storage/v1/object/public/media/${filePath}`;
+        console.log(data);
+
+        return data;
+      },
+    ],
+  },
 };
 
-export const deleteFile = async (filePath, bucket = "seo-media") => {
-  const { error } = await supabase.storage.from(bucket).remove([filePath]);
-
-  if (error) throw new Error(`Supabase deletion failed: ${error.message}`);
-};
+export default Media;
