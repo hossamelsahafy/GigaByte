@@ -44,7 +44,7 @@ const Page = () => {
                 <p className="text-xl font-[900] mb-4">{c.name}</p>
 
                 <Link href={`/collections/${c.id}/products`} passHref>
-                  <button className="z-100 mb-7 absolute bottom-0 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity duration-300 bg-[var(--button-bg)] text-white px-6 py-2 rounded-lg hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833] mt-12">
+                  <button className="flex justify-center items-center z-100 mb-7 absolute bottom-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer transition-opacity duration-300 bg-[var(--button-bg)] text-white px-6 py-2 rounded-lg hover:bg-gradient-to-br from-[#0B0C10] via-[#1F2833] mt-12">
                     View More
                   </button>
                 </Link>
