@@ -9,7 +9,12 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["res.cloudinary.com"], // Specific to Cloudinary
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com", // ✅ Updated configuration
+      },
+    ],
   },
 };
 

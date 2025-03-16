@@ -146,8 +146,6 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
-  _verified?: boolean | null;
-  _verificationToken?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
@@ -210,11 +208,11 @@ export interface Order {
  */
 export interface Media {
   id: string;
-  altText?: string | null;
-  prefix?: string | null;
+  cloudinaryUrl?: string | null;
+  publicId?: string | null;
   updatedAt: string;
   createdAt: string;
-  url: string;
+  url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
   mimeType?: string | null;
@@ -315,8 +313,6 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
-  _verified?: T;
-  _verificationToken?: T;
   loginAttempts?: T;
   lockUntil?: T;
 }
@@ -374,8 +370,8 @@ export interface OrdersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  altText?: T;
-  prefix?: T;
+  cloudinaryUrl?: T;
+  publicId?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

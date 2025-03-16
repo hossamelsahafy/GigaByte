@@ -1,9 +1,42 @@
-import { v2 as cloudinary } from "cloudinary";
+import { MongoClient } from "mongodb";
+import fs from "fs";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const uri = process.env.MONGODB_URI;
+let clientPromise = null;
 
-export default cloudinary;
+async function getDb() {
+  if (!clientPromise) {
+    clientPromise = MongoClient.connect(uri);
+  }
+  return (await clientPromise).db();
+}
+
+const createMediaDocument = async (cloudinaryUrl, publicId, localFilePath) => {
+  try {
+    const db = await getDb();
+    
+    // Insert new media document
+    const insertResult = await db.collection("media").insertOne({
+      cloudinaryUrl,
+      publicId,
+      originalFilename: localFilePath,
+      uploadedAt: new Date()
+    });
+
+    console.log("✅ Created new media document ID:", insertResult.insertedId);
+
+    // Delete local file after successful upload
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+      console.log("🗑️ Deleted local file:", localFilePath);
+    }
+
+    return insertResult;
+
+  } catch (error) {
+    console.error("❌ MongoDB Insert Error:", error);
+    throw error;
+  }
+};
+
+export default createMediaDocument;

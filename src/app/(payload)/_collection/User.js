@@ -3,8 +3,9 @@ import clientPromise from "../lib/dbConnect.js";
 /** @type {import('payload/types').CollectionConfig} */
 const Users = {
   slug: "users",
-  auth: {
-    verify: true,
+  auth: true, // This enables authentication
+  admin: {
+    useAsTitle: "email",
   },
   access: {
     create: () => true,
