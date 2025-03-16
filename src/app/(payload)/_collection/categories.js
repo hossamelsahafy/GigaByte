@@ -1,5 +1,7 @@
 // src/app/(payload)/_collection/categories.js
 
+import { relationship } from "node_modules/payload/dist/fields/validations.js";
+
 /** @type {import('payload/types').CollectionConfig} */
 const Categories = {
   slug: "categories",
@@ -41,7 +43,8 @@ const Categories = {
     },
     {
       name: "image",
-      type: "text",
+      type: "relationship", // Changed to 'relationship' type
+      relationTo: "media", // Points to the 'media' collection
       required: true,
       label: "Category Image",
     },

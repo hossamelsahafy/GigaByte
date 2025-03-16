@@ -57,12 +57,15 @@ const Products = {
       fields: [
         {
           name: "image",
-          type: "text",
+          type: "relationship",
+          relationTo: "media", // Link to the media collection
           required: true,
           label: "Image",
+          hasMany: true, // Allows multiple images
         },
       ],
     },
+
     {
       name: "category",
       type: "relationship",

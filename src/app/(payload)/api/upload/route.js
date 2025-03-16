@@ -4,9 +4,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { writeFile } from "fs/promises";
-import mongoose from "mongoose";
+import clientPromise from "../../lib/dbConnect.js";
 import fetch from "node-fetch"; // Ensure this is imported
-
+import { v4 as uuidv4 } from "uuid";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -15,16 +15,6 @@ cloudinary.v2.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-async function connectDB() {
-  if (!mongoose.connection.readyState) {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  }
-  return mongoose.connection.db;
-}
 
 export async function POST(req) {
   let tempFilePath;
@@ -46,7 +36,9 @@ export async function POST(req) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
 
-    tempFilePath = path.join(tempDir, `${Date.now()}-${file.name}`);
+    // Generate a unique filename using UUID
+    const uniqueFilename = `${uuidv4()}-${file.name}`;
+    tempFilePath = path.join(tempDir, uniqueFilename);
     await writeFile(tempFilePath, buffer);
 
     console.log("📤 Uploading file to Cloudinary...");
@@ -63,37 +55,34 @@ export async function POST(req) {
       "/upload/w_200,h_200,c_fill/"
     );
 
-    // Save to MongoDB
-    const db = await connectDB();
-    session = await mongoose.startSession();
-    session.startTransaction();
+    // Connect to MongoDB using MongoClient
+    const client = await clientPromise;
+    const db = client.db();
 
+    // Save to MongoDB
     const newMedia = {
       cloudinaryUrl: result.secure_url,
       publicId: result.public_id,
-      filename: file.name,
+      filename: uniqueFilename, // Save the unique filename
       thumbnailURL,
       createdAt: new Date(),
     };
 
-    await db.collection("media").insertOne(newMedia, { session });
-
-    await session.commitTransaction();
-    session.endSession();
+    const mediaCollection = db.collection("media");
+    await mediaCollection.insertOne(newMedia);
 
     console.log("✅ Upload Success:", newMedia);
 
-    // 🔥 **Insert media into Payload CMS via API**
+    // Insert media into Payload CMS via API
     const payloadResponse = await fetch(
-      `${process.env.PAYLOAD_CMS_HOST}/api/media`,
+      `${process.env.NEXT_PUBLIC_HOST}/api/media`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.PAYLOAD_API_KEY}`, // Ensure this is set
         },
         body: JSON.stringify({
-          filename: file.name,
+          filename: uniqueFilename, // Use the unique filename here
           cloudinaryUrl: result.secure_url,
           thumbnailURL,
           publicId: result.public_id,
@@ -116,10 +105,6 @@ export async function POST(req) {
       payloadCMS: payloadData,
     });
   } catch (error) {
-    if (session) {
-      await session.abortTransaction();
-      session.endSession();
-    }
     console.error("❌ Upload Error:", error);
     return NextResponse.json(
       { error: "Upload failed", details: error.message },

@@ -49,8 +49,8 @@ const Page = () => {
                   </button>
                 </Link>
 
-                <img
-                  src={c.image.url}
+                <Image
+                  src={c.image.cloudinaryUrl}
                   alt={c.name}
                   width={400}
                   height={200}
