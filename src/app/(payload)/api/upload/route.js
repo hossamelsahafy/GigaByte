@@ -58,7 +58,10 @@ export async function POST(req) {
 
     console.log("✅ Cloudinary Upload Success:", result.secure_url);
 
-    const thumbnailURL = result.secure_url.replace("/upload/", "/upload/w_200,h_200,c_fill/");
+    const thumbnailURL = result.secure_url.replace(
+      "/upload/",
+      "/upload/w_200,h_200,c_fill/"
+    );
 
     // Save to MongoDB
     const db = await connectDB();
@@ -81,35 +84,47 @@ export async function POST(req) {
     console.log("✅ Upload Success:", newMedia);
 
     // 🔥 **Insert media into Payload CMS via API**
-    const payloadResponse = await fetch(`${process.env.PAYLOAD_CMS_HOST}/api/media`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.PAYLOAD_API_KEY}`, // Ensure this is set
-      },
-      body: JSON.stringify({
-        filename: file.name,
-        cloudinaryUrl: result.secure_url,
-        thumbnailURL,
-        publicId: result.public_id,
-      }),
-    });
+    const payloadResponse = await fetch(
+      `${process.env.PAYLOAD_CMS_HOST}/api/media`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.PAYLOAD_API_KEY}`, // Ensure this is set
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          cloudinaryUrl: result.secure_url,
+          thumbnailURL,
+          publicId: result.public_id,
+        }),
+      }
+    );
 
     const payloadData = await payloadResponse.json();
     if (!payloadResponse.ok) {
-      throw new Error(`Payload CMS Error: ${payloadData.message || "Failed to insert media"}`);
+      throw new Error(
+        `Payload CMS Error: ${payloadData.message || "Failed to insert media"}`
+      );
     }
 
     console.log("✅ Media inserted into Payload CMS:", payloadData);
 
-    return NextResponse.json({ success: true, media: newMedia, payloadCMS: payloadData });
+    return NextResponse.json({
+      success: true,
+      media: newMedia,
+      payloadCMS: payloadData,
+    });
   } catch (error) {
     if (session) {
       await session.abortTransaction();
       session.endSession();
     }
     console.error("❌ Upload Error:", error);
-    return NextResponse.json({ error: "Upload failed", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Upload failed", details: error.message },
+      { status: 500 }
+    );
   } finally {
     if (tempFilePath && fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
