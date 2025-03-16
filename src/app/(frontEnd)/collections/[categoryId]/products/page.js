@@ -30,7 +30,7 @@ const Products = () => {
             >
               <div className="relative w-full aspect-w-16 aspect-h-9 flex items-center justify-center">
                 <Image
-                  src={product.images[0].image.cloudinaryUrl}
+                  src={product.images?.[0]?.image?.[0]?.cloudinaryUrl}
                   alt={product.name}
                   width={400}
                   height={200}

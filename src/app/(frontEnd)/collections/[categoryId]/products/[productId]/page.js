@@ -18,7 +18,7 @@ export default function ProductDetails() {
       const foundProduct = products.find((p) => p.id === productId);
       setProduct(foundProduct);
       if (foundProduct && foundProduct.images.length > 0) {
-        setSelectedImage(foundProduct.images[0].image.cloudinaryUrl);
+        setSelectedImage(foundProduct.images[0].image[0].cloudinaryUrl);
       }
     }
   }, [productId, products]);
@@ -29,17 +29,20 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-[var(--background-color)] text-[var(--foreground-color)] flex items-center justify-center p-6">
       <div className="flex flex-col md:flex-row gap-6">
         <div className="flex md:flex-col flex-row  gap-2 bg-[var(--secondary-bg)] p-4 rounded-lg">
-          {product.images.map((img, index) => (
-            <Image
-              key={index}
-              src={img.image.cloudinaryUrl}
-              alt={product.name}
-              width={80}
-              height={80}
-              className="cursor-pointer rounded-lg object-cover w-20 h-20 hover:opacity-75"
-              onClick={() => setSelectedImage(img.image.url)}
-            />
-          ))}
+          {product.images.map((img, index) => {
+            console.log(img); // This will log each image object
+            return (
+              <Image
+                key={index}
+                src={img.image[0].cloudinaryUrl}
+                alt={product.name}
+                width={80}
+                height={80}
+                className="cursor-pointer rounded-lg object-cover w-20 h-20 hover:opacity-75"
+                onClick={() => setSelectedImage(img.image.cloudinaryUrl)}
+              />
+            );
+          })}
         </div>
         <div className="max-w-4xl w-full bg-[var(--card-bg)] shadow-lg rounded-2xl overflow-hidden p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-[var(--secondary-bg)] p-4 rounded-lg flex items-center justify-center w-full">
