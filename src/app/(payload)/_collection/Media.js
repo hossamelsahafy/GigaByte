@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs";
+import fs, { access, read } from "fs";
 import fetch from "node-fetch";
 import FormData from "form-data";
 import { fileURLToPath } from "url";
@@ -96,6 +96,9 @@ async function getDb() {
 
 const Media = {
   slug: "media",
+  access: {
+    read: () => true, // Allow read access to everyone
+  },
   upload: {
     staticURL: "/media",
     staticDir: "uploads/media",

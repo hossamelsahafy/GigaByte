@@ -18,7 +18,7 @@ export default function ProductDetails() {
       const foundProduct = products.find((p) => p.id === productId);
       setProduct(foundProduct);
       if (foundProduct && foundProduct.images.length > 0) {
-        setSelectedImage(foundProduct.images[0].image.url);
+        setSelectedImage(foundProduct.images[0].image.cloudinaryUrl);
       }
     }
   }, [productId, products]);
@@ -32,7 +32,7 @@ export default function ProductDetails() {
           {product.images.map((img, index) => (
             <Image
               key={index}
-              src={img.image.url}
+              src={img.image.cloudinaryUrl}
               alt={product.name}
               width={80}
               height={80}

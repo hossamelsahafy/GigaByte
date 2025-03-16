@@ -48,7 +48,7 @@ export default function CartPage() {
             >
               <div className="flex items-center gap-4">
                 <Image
-                  src={item.images[0].image.url}
+                  src={item.images[0].image.cloudinaryUrl}
                   alt={item.name}
                   width={80}
                   height={80}

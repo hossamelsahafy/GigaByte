@@ -14,6 +14,7 @@ export const ProductsProvider = ({ children }) => {
 
         const data = await res.json();
         setProducts(data.docs);
+        console.log(data);
       } catch (error) {
         // console.error("Error fetching products:", error);
       }

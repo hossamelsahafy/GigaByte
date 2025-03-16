@@ -49,7 +49,7 @@ const Page = () => {
                   </button>
                 </Link>
 
-                <Image
+                <img
                   src={c.image.cloudinaryUrl}
                   alt={c.name}
                   width={400}
