@@ -17,8 +17,19 @@ export default function ProductDetails() {
     if (productId && products.length > 0) {
       const foundProduct = products.find((p) => p.id === productId);
       setProduct(foundProduct);
-      if (foundProduct && foundProduct.images.length > 0) {
-        setSelectedImage(foundProduct.images[0].image[0].cloudinaryUrl);
+      const imageUrls = foundProduct.images
+        .map((imageItem) => {
+          if (imageItem.image && imageItem.image.length > 0) {
+            console.log(imageItem.image[0].cloudinaryUrl);
+
+            return imageItem.image[0].cloudinaryUrl;
+          }
+          return null;
+        })
+        .filter((cloudinaryUrl) => cloudinaryUrl !== null); // Remove null values if any image doesn't have a valid URL
+
+      if (imageUrls.length > 0) {
+        setSelectedImage(imageUrls[0]);
       }
     }
   }, [productId, products]);
@@ -30,7 +41,6 @@ export default function ProductDetails() {
       <div className="flex flex-col md:flex-row gap-6">
         <div className="flex md:flex-col flex-row  gap-2 bg-[var(--secondary-bg)] p-4 rounded-lg">
           {product.images.map((img, index) => {
-            console.log(img); // This will log each image object
             return (
               <Image
                 key={index}
@@ -39,7 +49,7 @@ export default function ProductDetails() {
                 width={80}
                 height={80}
                 className="cursor-pointer rounded-lg object-cover w-20 h-20 hover:opacity-75"
-                onClick={() => setSelectedImage(img.image.cloudinaryUrl)}
+                onClick={() => setSelectedImage(img.image[0].cloudinaryUrl)}
               />
             );
           })}
