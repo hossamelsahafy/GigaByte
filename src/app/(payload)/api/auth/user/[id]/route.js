@@ -189,7 +189,7 @@ export async function PUT(req, { params }) {
 }
 
 export async function GET(req, { params }) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || !ObjectId.isValid(id)) {
     return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });

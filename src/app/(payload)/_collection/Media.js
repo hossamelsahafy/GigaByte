@@ -97,6 +97,7 @@ async function getDb() {
 const Media = {
   slug: "media",
   access: {
+    create: ({ req }) => true,
     read: () => true, // Allow read access to everyone
   },
   upload: {
