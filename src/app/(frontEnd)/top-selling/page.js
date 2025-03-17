@@ -7,13 +7,14 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { IoMdCart } from "react-icons/io";
 import Image from "next/image";
-import { useProducts } from "../context/ProductsContext"; // Ensure correct import
+import { useCart } from "../context/CartContext.js";
+import { useProducts } from "../context/ProductsContext";
 
 const Page = () => {
-  const { products } = useProducts(); // Call hook inside component
+  const { products } = useProducts();
   const [randomProducts, setRandomProducts] = useState([]);
+  const { addToCart } = useCart();
 
-  // Function to shuffle products and get 5 random ones
   const getRandomProducts = () => {
     if (!products || products.length === 0) return [];
     return [...products].sort(() => Math.random() - 0.5).slice(0, 5);
@@ -77,7 +78,10 @@ const Page = () => {
                     <p className="text-lg font-bold text-[var(--accent-color)] mb-2">
                       {product.price}EGP
                     </p>
-                    <button className="bg-[var(--button-bg)] opacity-0  group-hover:opacity-100 cursor-pointer text-[var(--white)] px-6 py-2 rounded-lg transition duration-300]">
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="bg-[var(--button-bg)] opacity-0  group-hover:opacity-100 cursor-pointer text-[var(--white)] px-6 py-2 rounded-lg transition duration-300]"
+                    >
                       Add To Cart <IoMdCart className="inline-block text-xl" />
                     </button>
                   </div>
