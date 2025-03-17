@@ -139,24 +139,16 @@ export async function POST(req) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    console.log("📤 Uploading file to Cloudinary...");
+    // Convert buffer to base64 for Cloudinary upload
+    const base64Image = buffer.toString("base64");
+    const dataUri = `data:${file.type};base64,${base64Image}`;
 
-    // Generate a unique filename
-    const uniqueFilename = `${uuidv4()}-${file.name}`;
+    console.log("📤 Uploading file to Cloudinary directly...");
 
-    // Upload directly to Cloudinary from memory
-    const uploadPromise = new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.v2.uploader.upload_stream(
-        { folder: "payload_media", public_id: uniqueFilename },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      uploadStream.end(buffer);
+    // Upload to Cloudinary (no temp file needed)
+    const result = await cloudinary.v2.uploader.upload(dataUri, {
+      folder: "payload_media",
     });
-
-    const result = await uploadPromise;
 
     console.log("✅ Cloudinary Upload Success:", result.secure_url);
 
@@ -165,15 +157,15 @@ export async function POST(req) {
       "/upload/w_200,h_200,c_fill/"
     );
 
-    // Connect to MongoDB using MongoClient
+    // Connect to MongoDB
     const client = await clientPromise;
     const db = client.db();
 
-    // Save to MongoDB
+    // Save media details to MongoDB
     const newMedia = {
       cloudinaryUrl: result.secure_url,
       publicId: result.public_id,
-      filename: uniqueFilename,
+      filename: file.name,
       thumbnailURL,
       createdAt: new Date(),
     };
@@ -181,7 +173,7 @@ export async function POST(req) {
     const mediaCollection = db.collection("media");
     await mediaCollection.insertOne(newMedia);
 
-    // console.log("✅ Upload Success:", newMedia);
+    console.log("✅ Media saved to MongoDB");
 
     // Insert media into Payload CMS via API
     const payloadResponse = await fetch(
@@ -194,16 +186,16 @@ export async function POST(req) {
     );
 
     const payloadData = await payloadResponse.json();
+
     if (!payloadResponse.ok) {
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: "Ignoring media error for deployment",
-        }),
+      console.error("❌ Payload CMS Error:", payloadData);
+      return NextResponse.json(
         {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }
+          success: false,
+          error: "Failed to insert media into Payload CMS",
+          details: payloadData,
+        },
+        { status: 500 }
       );
     }
 
@@ -215,12 +207,10 @@ export async function POST(req) {
       payloadCMS: payloadData,
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ success: true, message: "Bypassing media error" }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
+    console.error("❌ Upload Error:", error);
+    return NextResponse.json(
+      { success: false, error: "Upload failed", details: error.message },
+      { status: 500 }
     );
   }
 }
