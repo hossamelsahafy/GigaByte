@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { FaTimes } from "react-icons/fa";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
   const elements = [
@@ -12,6 +12,13 @@ const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
     { name: "About", link: "/about" },
     { name: "Contact Us", link: "/contact-us" },
   ];
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isOpen]);
 
   return (
     <>
@@ -29,7 +36,7 @@ const NavBar = ({ isOpen, setIsOpen, accountName, accountLink }) => {
 
       <div
         className={`lg:hidden fixed top-0 left-0 h-full w-full bg-opacity-90 bg-[var(--slide-bar)] text-white transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0 overflow-hidden" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out z-50`}
       >
         <button
