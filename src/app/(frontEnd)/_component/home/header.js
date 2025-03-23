@@ -17,10 +17,6 @@ const Header = () => {
 
   const right = [
     {
-      name: "Search",
-      Icon: <CiSearch />,
-    },
-    {
       name: name,
       Icon: <MdAccountCircle />,
       link: name === "Account" ? "/account" : "/auth",
