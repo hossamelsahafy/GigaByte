@@ -52,7 +52,7 @@ const Footer = () => {
           {/* Contact Us Section */}
           <div className="flex flex-col items-center lg:items-start">
             <h3 className="text-xl font-[600] mb-4">Contact Us</h3>
-            <div className="space-y-2">
+            <div className="space-y-2 ml-0  max-[428px]:ml-20">
               <p>Email: gigabyte.info.010@gmail.com</p>
               <p>Phone: +201002750048</p>
             </div>
