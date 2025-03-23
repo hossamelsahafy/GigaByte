@@ -69,7 +69,22 @@ export default function ProductDetails() {
               {product.name}
             </h1>
             <p className="text-lg text-[var(--foreground-color)]">
-              {product.description}
+              {product.description.split("\n").map((line, index) => {
+                // Split by ":", only once
+                const parts = line.split(/:(.*)/s);
+
+                return (
+                  <div key={index}>
+                    {parts.length > 1 ? (
+                      <>
+                        <strong>{parts[0]}:</strong> {parts[1]}
+                      </>
+                    ) : (
+                      line
+                    )}
+                  </div>
+                );
+              })}
             </p>
             <p className="text-2xl font-semibold text-[var(--accent-color)]">
               {product.price}EGP
