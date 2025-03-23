@@ -72,7 +72,7 @@ export default function ProductDetails() {
               {product.description}
             </p>
             <p className="text-2xl font-semibold text-[var(--accent-color)]">
-              ${product.price}
+              {product.price}EGP
             </p>
             <button
               onClick={() => addToCart(product)}
