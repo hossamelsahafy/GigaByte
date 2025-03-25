@@ -9,7 +9,6 @@ import { compare } from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { MongoClient } from "mongodb";
 
-// Type assertion for clientPromise to resolve the 'any' issue
 const typedClientPromise: Promise<MongoClient> = clientPromise;
 
 interface CustomUser extends User {
@@ -88,46 +87,38 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    // @ts-ignore
+    async jwt({ token, user, account }): Promise<CustomToken> {
       if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        // @ts-ignore
-        token.role = user.role || "user";
+        const customUser = user as CustomUser;
+        token.id = customUser.id;
+        token.name = customUser.name;
+        token.email = customUser.email;
+        token.role = customUser.role || "user";
         token.provider = account?.provider || "credentials";
-        // @ts-ignore
-        token.phoneNumber = user.phoneNumber || null;
+        token.phoneNumber = customUser.phoneNumber || null;
       }
-      return token;
+      // @ts-ignore
+      return token as CustomToken;
     },
-    async session({ session, token }) {
+    // @ts-ignore
+    async session({ token }): Promise<{ token: string }> {
       // @ts-ignore
-      session.user = {
-        // @ts-ignore
-        id: token.id,
-        name: token.name,
-        email: token.email,
-        role: token.role,
-        provider: token.provider,
-        phoneNumber: token.phoneNumber,
+      const customToken = token as CustomToken;
+      return {
+        token: jwt.sign(
+          {
+            id: customToken.id,
+            email: customToken.email,
+            role: customToken.role,
+            name: customToken.name,
+            provider: customToken.provider,
+            phoneNumber: customToken.phoneNumber,
+          },
+          process.env.JWT_SECRET!,
+          { expiresIn: "7d" }
+        ),
       };
-
-      // @ts-ignore
-      session.jwt = jwt.sign(
-        {
-          id: token.id,
-          email: token.email,
-          role: token.role,
-          name: token.name,
-          provider: token.provider,
-          phoneNumber: token.phoneNumber,
-        },
-        process.env.JWT_SECRET!,
-        { expiresIn: "7d" }
-      );
-
-      return session;
     },
   },
 };
