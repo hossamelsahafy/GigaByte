@@ -93,8 +93,10 @@ const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        // @ts-ignore
         token.role = user.role || "user";
         token.provider = account?.provider || "credentials";
+        // @ts-ignore
         token.phoneNumber = user.phoneNumber || null;
       }
       return token;
