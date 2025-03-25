@@ -88,38 +88,44 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    // @ts-ignore
-    async jwt({ token, user, account }): Promise<CustomToken> {
+    async jwt({ token, user, account }) {
       if (user) {
-        const customUser = user as CustomUser;
-        token.id = customUser.id;
-        token.name = customUser.name;
-        token.email = customUser.email;
-        token.role = customUser.role || "user";
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.role = user.role || "user";
         token.provider = account?.provider || "credentials";
-        token.phoneNumber = customUser.phoneNumber || null;
+        token.phoneNumber = user.phoneNumber || null;
       }
-      // @ts-ignore
-      return token as CustomToken;
+      return token;
     },
-    // @ts-ignore
-    async session({ token }): Promise<{ token: string }> {
+    async session({ session, token }) {
       // @ts-ignore
-      const customToken = token as CustomToken;
-      return {
-        token: jwt.sign(
-          {
-            id: customToken.id,
-            email: customToken.email,
-            role: customToken.role,
-            name: customToken.name,
-            provider: customToken.provider,
-            phoneNumber: customToken.phoneNumber,
-          },
-          process.env.JWT_SECRET!,
-          { expiresIn: "7d" }
-        ),
+      session.user = {
+        // @ts-ignore
+        id: token.id,
+        name: token.name,
+        email: token.email,
+        role: token.role,
+        provider: token.provider,
+        phoneNumber: token.phoneNumber,
       };
+
+      // @ts-ignore
+      session.jwt = jwt.sign(
+        {
+          id: token.id,
+          email: token.email,
+          role: token.role,
+          name: token.name,
+          provider: token.provider,
+          phoneNumber: token.phoneNumber,
+        },
+        process.env.JWT_SECRET!,
+        { expiresIn: "7d" }
+      );
+
+      return session;
     },
   },
 };
