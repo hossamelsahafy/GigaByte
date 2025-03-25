@@ -123,6 +123,7 @@ const authOptions: NextAuthOptions = {
     },
   },
 };
+//
 // @ts-ignore
 const handler = NextAuth(authOptions);
 
