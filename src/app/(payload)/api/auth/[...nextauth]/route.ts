@@ -97,86 +97,50 @@ const authOptions: NextAuthOptions = {
           .findOne({ email: user.email });
 
         if (!existingUser) {
-          // لو المستخدم مش موجود، سجله
-          await db.collection("users").insertOne({
+          const newUser = await db.collection("users").insertOne({
             firstName: user.name?.split(" ")[0],
             lastName: user.name?.split(" ")[1] || "",
             email: user.email,
             role: "user",
-            provider: account.provider,
             phoneNumber: null,
           });
+
+          await db.collection("accounts").insertOne({
+            userId: newUser.insertedId,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+            type: account.type,
+            access_token: account.access_token,
+            expires_at: account.expires_at,
+            token_type: account.token_type,
+            id_token: account.id_token,
+          });
         } else {
-          // لو موجود، اتأكد إن عنده role و provider
-          await db
-            .collection("users")
-            .updateOne(
-              { email: user.email },
-              {
-                $set: {
-                  role: existingUser.role || "user",
-                  provider: account.provider,
-                },
-              }
-            );
+          const linkedAccount = await db.collection("accounts").findOne({
+            userId: existingUser._id,
+            provider: account.provider,
+          });
+
+          if (!linkedAccount) {
+            await db.collection("accounts").insertOne({
+              userId: existingUser._id,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              type: account.type,
+              access_token: account.access_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              id_token: account.id_token,
+            });
+          }
         }
       }
+
       return true;
     },
-
-    // @ts-ignore
-    async jwt({ token, user, account }) {
-      if (user) {
-        const customUser = user as CustomUser;
-        token.id = customUser.id;
-        token.name = customUser.name;
-        token.email = customUser.email;
-        token.role = customUser.role || "user";
-        token.provider = account?.provider || "credentials";
-        token.phoneNumber = customUser.phoneNumber || null;
-      } else if (
-        account &&
-        (account.provider === "google" || account.provider === "facebook")
-      ) {
-        const client = await typedClientPromise;
-        const db = client.db();
-        const existingUser = await db
-          .collection("users")
-          .findOne({ email: token.email });
-
-        if (existingUser) {
-          token.id = existingUser._id.toString();
-          token.name = `${existingUser.firstName} ${existingUser.lastName}`;
-          token.email = existingUser.email;
-          token.role = existingUser.role || "user";
-          token.provider = account.provider;
-          token.phoneNumber = existingUser.phoneNumber || null;
-        }
-      } // @ts-ignore
-
-      return token as CustomToken;
-    },
-    // @ts-ignore
-
-    async session({ token }) {
-      return {
-        token: jwt.sign(
-          {
-            id: token.id,
-            email: token.email,
-            role: token.role,
-            name: token.name,
-            provider: token.provider,
-            phoneNumber: token.phoneNumber,
-          },
-          process.env.JWT_SECRET!,
-          { expiresIn: "7d" }
-        ),
-      };
-    },
+    //
   },
 };
-//
 // @ts-ignore
 const handler = NextAuth(authOptions);
 
