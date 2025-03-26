@@ -87,103 +87,43 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google" || account?.provider === "facebook") {
-        const client = await typedClientPromise;
-        const db = client.db();
-
-        const existingUser = await db.collection("users").findOne({
-          email: user.email,
-        });
-
-        if (!existingUser) {
-          await db.collection("users").insertOne({
-            firstName: user.name?.split(" ")[0] || "",
-            lastName: user.name?.split(" ")[1] || "",
-            email: user.email,
-            role: "user",
-            provider: account.provider,
-            phoneNumber: null,
-          });
-        } else {
-          await db
-            .collection("users")
-            .updateOne(
-              { email: user.email },
-              { $set: { provider: account.provider } }
-            );
-        }
-      }
-      return true;
-    },
-    //@ts-ignore
-    async jwt({ token, user, account }) {
+    // @ts-ignore
+    async jwt({ token, user, account }): Promise<CustomToken> {
       if (user) {
         const customUser = user as CustomUser;
-        token = {
-          id: customUser.id,
-          //@ts-ignore
-          firstName: customUser.firstName,
-          //@ts-ignore
-          lastName: customUser.lastName,
-          email: customUser.email,
-          role: customUser.role || "user",
-          provider: account?.provider || "credentials",
-          phoneNumber: customUser.phoneNumber || null,
-        };
-      } else if (
-        token.email &&
-        (account?.provider === "google" || account?.provider === "facebook")
-      ) {
-        const client = await typedClientPromise;
-        const db = client.db();
-        const existingUser = await db.collection("users").findOne({
-          email: token.email,
-        });
-
-        if (existingUser) {
-          token = {
-            id: existingUser._id.toString(),
-            firstName: existingUser.firstName,
-            lastName: existingUser.lastName,
-            email: existingUser.email,
-            role: existingUser.role || "user",
-            provider: account.provider,
-            phoneNumber: existingUser.phoneNumber || null,
-          };
-        }
+        token.id = customUser.id;
+        token.name = customUser.name;
+        token.email = customUser.email;
+        token.role = customUser.role || "user";
+        token.provider = account?.provider || "credentials";
+        token.phoneNumber = customUser.phoneNumber || null;
       }
-      //@ts-ignore
+      // @ts-ignore
       return token as CustomToken;
     },
-    //@ts-ignore
-    async session({ token }) {
-      const signedJwt = jwt.sign(
-        {
-          id: token.id,
-          firstName: token.firstName,
-          lastName: token.lastName,
-          email: token.email,
-          role: token.role,
-          provider: token.provider,
-          phoneNumber: token.phoneNumber,
-        },
-        process.env.JWT_SECRET!,
-        { expiresIn: "7d" }
-      );
-
-      return { token: signedJwt };
+    // @ts-ignore
+    async session({ token }): Promise<{ token: string }> {
+      // @ts-ignore
+      const customToken = token as CustomToken;
+      return {
+        token: jwt.sign(
+          {
+            id: customToken.id,
+            email: customToken.email,
+            role: customToken.role,
+            name: customToken.name,
+            provider: customToken.provider,
+            phoneNumber: customToken.phoneNumber,
+          },
+          process.env.JWT_SECRET!,
+          { expiresIn: "7d" }
+        ),
+      };
     },
   },
-  //@ts-ignore
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/auth/signin",
-  },
 };
-//@ts-ignore
+//
+// @ts-ignore
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
