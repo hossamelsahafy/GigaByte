@@ -13,16 +13,18 @@ const typedClientPromise: Promise<MongoClient> = clientPromise;
 
 interface CustomUser extends User {
   id: string;
-  name: string;
   email: string;
   role: string;
   phoneNumber?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 interface CustomToken {
   id: string;
-  name: string;
   email: string;
+  lastName: string;
+  firstName: string;
   role: string;
   provider: string;
   phoneNumber?: string | null;
@@ -73,7 +75,8 @@ const authOptions: NextAuthOptions = {
 
         return {
           id: user._id.toString(),
-          name: `${user.firstName} ${user.lastName}`,
+          firstName: `${user.firstName} `,
+          lastName: `${user.lastName}`,
           email: user.email,
           role: user.role || "user",
           phoneNumber: user.phoneNumber || undefined,
@@ -87,47 +90,64 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    //@ts-ignore
-    async jwt({ token, user, account, profile }) {
+    // @ts-ignore
+    async jwt({ token, user, account, profile }): Promise<CustomToken> {
       if (account && profile) {
-        // For OAuth providers like Google, Facebook:
-        if (account.provider === "google" || account.provider === "facebook") {
-          //@ts-ignore
-          const fullName = profile.name || "";
-          const [firstName, ...lastNameParts] = fullName.trim().split(" ");
-          const lastName = lastNameParts.join(" ");
-          //@ts-ignore
-          token.id = profile.sub || profile.id;
-          token.firstName = firstName;
-          token.lastName = lastName;
-          token.email = profile.email;
-          token.role = "user";
-          token.provider = account.provider;
-          token.name = `${firstName} ${lastName}`;
-          //@ts-ignore
-          token.phoneNumber = profile.phone_number || null;
+        // This happens only on the initial OAuth login
+        const fullName = profile.name || "";
+        const [firstName, ...lastNameParts] = fullName.trim().split(" ");
+        const lastName = lastNameParts.join(" ");
+        // @ts-ignore
 
-          // OPTIONAL: Save or update in DB if needed
-          // await saveOrUpdateUserInDB({ id: token.id, email: token.email, name: token.name, provider: token.provider });
-        }
+        token.id = profile.sub || profile.id; // sub for Google, id for Facebook
+        token.firstName = firstName;
+        token.lastName = lastName;
+        token.name = `${firstName} ${lastName}`;
+        token.email = profile.email;
+        token.role = "user";
+        token.provider = account.provider;
+        // @ts-ignore
 
-        // For credentials-based login:
-        if (account.provider === "credentials" && user) {
-          const customUser = user as CustomUser;
-          token.id = customUser.id;
-          token.name = customUser.name;
-          token.email = customUser.email;
-          token.role = customUser.role || "user";
-          token.provider = "credentials";
-          token.phoneNumber = customUser.phoneNumber || null;
-        }
+        token.phoneNumber = profile.phone_number || null;
+
+        // Optionally save this user in your DB:
+        const client = await typedClientPromise;
+        const db = client.db();
+        await db.collection("users").updateOne(
+          { email: profile.email },
+          {
+            $setOnInsert: {
+              firstName,
+              lastName,
+              email: profile.email,
+              role: "user",
+              provider: account.provider,
+              // @ts-ignore
+
+              phoneNumber: profile.phone_number || null,
+            },
+          },
+          { upsert: true }
+        );
+      } else if (user) {
+        // For credentials provider
+        const customUser = user as CustomUser;
+        token.id = customUser.id;
+        token.firstName = customUser.firstName;
+        token.lastName = customUser.lastName;
+        token.email = customUser.email;
+        token.role = customUser.role || "user";
+        token.provider = account?.provider || "credentials";
+        token.phoneNumber = customUser.phoneNumber || null;
       }
-      //@ts-ignore
+      // @ts-ignore
+
       return token as CustomToken;
     },
-    //@ts-ignore
-    async session({ token }) {
-      //@ts-ignore
+
+    // @ts-ignore
+    async session({ token }): Promise<{ token: string }> {
+      // @ts-ignore
       const customToken = token as CustomToken;
       return {
         token: jwt.sign(
@@ -135,7 +155,8 @@ const authOptions: NextAuthOptions = {
             id: customToken.id,
             email: customToken.email,
             role: customToken.role,
-            name: customToken.name,
+            firstName: customToken.firstName,
+            lastName: customToken.lastName,
             provider: customToken.provider,
             phoneNumber: customToken.phoneNumber,
           },
@@ -146,6 +167,7 @@ const authOptions: NextAuthOptions = {
     },
   },
 };
+//
 // @ts-ignore
 const handler = NextAuth(authOptions);
 
