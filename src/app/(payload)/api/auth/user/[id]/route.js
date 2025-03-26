@@ -28,14 +28,13 @@ export async function DELETE(req, { params }) {
   }
 
   const userId = decoded.id;
-  const userRole = decoded.role;
 
   const client = await clientPromise;
   const db = client.db("GigaByte");
   const usersCollection = db.collection("users");
   const ordersCollection = db.collection("orders");
 
-  if (userRole !== "admin" && userId !== id) {
+  if (userId !== id) {
     return NextResponse.json(
       { error: "Forbidden: You can't delete this account" },
       { status: 403 }
