@@ -21,22 +21,9 @@ export const UserProvider = ({ children }) => {
 
       try {
         const decoded = JSON.parse(atob(session.token.split(".")[1]));
-        const userId = decoded.id;
-        console.log(decoded);
-
-        const res = await fetch(`/api/auth/user/${userId}`, {
-          headers: { Authorization: `Bearer ${session.token}` },
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          setCurrentUser(data.user);
-        } else {
-          console.error("Failed to fetch user:", data.error);
-        }
+        setCurrentUser(decoded);
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Error decoding token:", error);
       } finally {
         setLoading(false);
       }

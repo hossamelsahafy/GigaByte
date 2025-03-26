@@ -81,7 +81,7 @@ export default function AccountPage() {
       console.log(token);
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_HOST}/api/auth/user/${currentUser._id}`,
+        `${process.env.NEXT_PUBLIC_HOST}/api/auth/user/${currentUser.id}`,
         {
           method: "PUT",
           headers: {

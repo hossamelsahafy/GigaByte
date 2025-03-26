@@ -32,7 +32,7 @@ export async function DELETE(req) {
   const usersCollection = db.collection("users");
   const ordersCollection = db.collection("orders");
 
-  const userOrders = await ordersCollection.find({ user }).toArray();
+  const userOrders = await ordersCollection.find({ userId }).toArray();
   if (userOrders.length > 0) {
     return NextResponse.json(
       { error: "Cannot delete account with active orders" },
@@ -48,13 +48,7 @@ export async function DELETE(req) {
   );
 }
 
-export async function PUT(req, { params }) {
-  const { id } = params;
-
-  if (!id) {
-    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
-  }
-
+export async function PUT(req) {
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     return NextResponse.json(

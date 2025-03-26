@@ -13,18 +13,16 @@ const typedClientPromise: Promise<MongoClient> = clientPromise;
 
 interface CustomUser extends User {
   id: string;
+  name: string;
   email: string;
   role: string;
   phoneNumber?: string;
-  firstName?: string;
-  lastName?: string;
 }
 
 interface CustomToken {
   id: string;
+  name: string;
   email: string;
-  lastName: string;
-  firstName: string;
   role: string;
   provider: string;
   phoneNumber?: string | null;
@@ -75,8 +73,7 @@ const authOptions: NextAuthOptions = {
 
         return {
           id: user._id.toString(),
-          firstName: `${user.firstName} `,
-          lastName: `${user.lastName}`,
+          name: `${user.firstName} ${user.lastName}`,
           email: user.email,
           role: user.role || "user",
           phoneNumber: user.phoneNumber || undefined,
@@ -90,89 +87,60 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    // @ts-ignore
-    async jwt({ token, user, account, profile }): Promise<CustomToken> {
-      if (account && profile) {
-        // This happens only on the initial OAuth login
-        const fullName = profile.name || "";
-        const [firstName, ...lastNameParts] = fullName.trim().split(" ");
-        const lastName = lastNameParts.join(" ");
-        // @ts-ignore
-
-        token.id = profile.sub || profile.id; // sub for Google, id for Facebook
-        token.firstName = firstName;
-        token.lastName = lastName;
-        token.name = `${firstName} ${lastName}`;
-        token.email = profile.email;
-        token.role = "user";
-        token.provider = account.provider;
-        // @ts-ignore
-
-        token.phoneNumber = profile.phone_number || null;
-
-        // Optionally save this user in your DB:
-        const client = await typedClientPromise;
-        const db = client.db();
-        await db.collection("users").updateOne(
-          { email: profile.email },
-          {
-            $setOnInsert: {
-              firstName,
-              lastName,
-              email: profile.email,
-              role: "user",
-              provider: account.provider,
-              // @ts-ignore
-
-              phoneNumber: profile.phone_number || null,
-            },
-          },
-          { upsert: true }
-        );
-        console.log("✅ User signed in via OAuth:", {
-          id: token.id,
-          firstName: token.firstName,
-          lastName: token.lastName,
-          email: token.email,
-          provider: token.provider,
-        });
-      } else if (user) {
-        // For credentials provider
+    async jwt({
+      token,
+      user,
+      account,
+    }: {
+      //@ts-ignore
+      token: JWT;
+      user?: User;
+      //@ts-ignore
+      account?: Account | null;
+    }) {
+      if (user) {
         const customUser = user as CustomUser;
-        token.id = customUser.id;
-        token.firstName = customUser.firstName;
-        token.lastName = customUser.lastName;
-        token.email = customUser.email;
-        token.role = customUser.role || "user";
-        token.provider = account?.provider || "credentials";
-        token.phoneNumber = customUser.phoneNumber || null;
+        const fullName = customUser.name || "";
+        const nameParts = fullName.split(" ");
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(" "); // في حالة الاسم مكوّن من أكتر من كلمتين
+        return {
+          ...token,
+          id: customUser.id,
+          name: fullName,
+          email: customUser.email,
+          role: customUser.role || "user",
+          provider: account?.provider || "credentials",
+          phoneNumber: customUser.phoneNumber || null,
+          firstName: firstName || "",
+          lastName: lastName || "",
+        };
       }
-      console.log("✅ User signed in via credentials:", {
-        id: token.id,
-        firstName: token.firstName,
-        lastName: token.lastName,
-        email: token.email,
-        provider: token.provider,
-      });
-      // @ts-ignore
-
-      return token as CustomToken;
+      return token;
     },
 
-    // @ts-ignore
-    async session({ token }): Promise<{ token: string }> {
-      // @ts-ignore
-      const customToken = token as CustomToken;
+    //@ts-ignore
+    async session({ session, token }: { session: Session; token: JWT }) {
       return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+          role: token.role,
+          phoneNumber: token.phoneNumber,
+          firstName: token.firstName,
+          lastName: token.lastName,
+        },
         token: jwt.sign(
           {
-            id: customToken.id,
-            email: customToken.email,
-            role: customToken.role,
-            firstName: customToken.firstName,
-            lastName: customToken.lastName,
-            provider: customToken.provider,
-            phoneNumber: customToken.phoneNumber,
+            id: token.id,
+            email: token.email,
+            role: token.role,
+            name: token.name,
+            provider: token.provider,
+            phoneNumber: token.phoneNumber,
+            firstName: token.firstName,
+            lastName: token.lastName,
           },
           process.env.JWT_SECRET!,
           { expiresIn: "7d" }
