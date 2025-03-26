@@ -3,6 +3,7 @@ import clientPromise from "../../../../lib/dbConnect";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
+import { use } from "react";
 
 export async function DELETE(req) {
   const authHeader = req.headers.get("authorization");
@@ -72,26 +73,18 @@ export async function PUT(req) {
   const userId = decoded.id;
   const userRole = decoded.role;
 
-  if (userRole !== "admin" && userId !== id) {
-    return NextResponse.json(
-      { error: "Forbidden: You can't update this account" },
-      { status: 403 }
-    );
-  }
-
   const client = await clientPromise;
   const db = client.db("GigaByte");
   const usersCollection = db.collection("users");
 
   try {
     const body = await req.json();
+
     const { firstName, lastName, phoneNumber, password } = body;
 
-    // ✅ Allow empty phone number (only validate if it's provided)
     const isValidPhoneNumber = (phoneNumber) =>
       !phoneNumber || /^\+20(10|11|12|15)[0-9]{8}$/.test(phoneNumber);
 
-    // ✅ Only validate password if it's provided
     const isStrongPassword = (password) =>
       !password ||
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
@@ -116,8 +109,8 @@ export async function PUT(req) {
     }
     if (phoneNumber) {
       const existingUser = await usersCollection.findOne({
-        phoneNumber: phoneNumber.toString(), // Ensure it's a string
-        _id: { $ne: new ObjectId(id) }, // Ensure _id is excluded properly
+        phoneNumber: phoneNumber.toString(),
+        _id: { $ne: new ObjectId(userId) },
       });
 
       if (existingUser) {
@@ -137,30 +130,49 @@ export async function PUT(req) {
       updateData.password = await bcrypt.hash(password, 10);
     }
 
-    if (!ObjectId.isValid(id)) {
+    if (!ObjectId.isValid(userId)) {
       return NextResponse.json(
         { error: "Invalid user ID format" },
         { status: 400 }
       );
     }
 
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const result = await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
+      { _id: new ObjectId(userId) },
       { $set: updateData }
     );
-
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+    const updatedUser = await usersCollection.findOne(
+      { _id: new ObjectId(userId) },
+      { projection: { password: 0 } }
+    );
+
+    const newToken = jwt.sign(
+      {
+        id: updatedUser._id,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        phoneNumber: updatedUser.phoneNumber,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     return NextResponse.json(
-      { message: "User updated successfully" },
+      {
+        message: "User updated successfully",
+        token: newToken,
+      },
       { status: 200 }
     );
   } catch (error) {

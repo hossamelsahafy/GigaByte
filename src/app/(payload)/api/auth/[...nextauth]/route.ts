@@ -86,11 +86,80 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  // callbacks: {
+  //   async jwt({
+  //     token,
+  //     user,
+  //     account,
+  //   }: {
+  //     //@ts-ignore
+  //     token: JWT;
+  //     user?: User;
+  //     //@ts-ignore
+  //     account?: Account | null;
+  //   }) {
+  //     if (user) {
+  //       const customUser = user as CustomUser;
+  //       const fullName = customUser.name || "";
+  //       const nameParts = fullName.split(" ");
+  //       const firstName = nameParts[0];
+  //       const lastName = nameParts.slice(1).join(" ");
+  //       return {
+  //         ...token,
+  //         id: customUser.id,
+  //         name: fullName,
+  //         email: customUser.email,
+  //         role: customUser.role || "user",
+  //         provider: account?.provider || "credentials",
+  //         phoneNumber: customUser.phoneNumber || null,
+  //         firstName: firstName || "",
+  //         lastName: lastName || "",
+  //       };
+  //     }
+  //     return token;
+  //   },
+
+  //   //@ts-ignore
+  //   async session({ session, token }: { session: Session; token: JWT }) {
+  //     return {
+  //       ...session,
+  //       user: {
+  //         ...session.user,
+  //         id: token.id,
+  //         role: token.role,
+  //         phoneNumber: token.phoneNumber,
+  //         firstName: token.firstName,
+  //         lastName: token.lastName,
+  //       },
+  //       token: jwt.sign(
+  //         {
+  //           id: token.id,
+  //           email: token.email,
+  //           role: token.role,
+  //           name: token.name,
+  //           provider: token.provider,
+  //           phoneNumber: token.phoneNumber,
+  //           firstName: token.firstName,
+  //           lastName: token.lastName,
+  //         },
+  //         process.env.JWT_SECRET!,
+  //         { expiresIn: "7d" }
+  //       ),
+  //     };
+  //   },
+  // },
+
   callbacks: {
     async jwt({
       token,
       user,
       account,
+      //@ts-ignore
+
+      trigger,
+      //@ts-ignore
+
+      session,
     }: {
       //@ts-ignore
       token: JWT;
@@ -98,12 +167,19 @@ const authOptions: NextAuthOptions = {
       //@ts-ignore
       account?: Account | null;
     }) {
+      if (trigger === "update" && session?.token) {
+        const decoded = jwt.decode(session.token) as JWT;
+        return {
+          ...token,
+          ...decoded,
+        };
+      }
       if (user) {
         const customUser = user as CustomUser;
         const fullName = customUser.name || "";
         const nameParts = fullName.split(" ");
         const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(" "); // في حالة الاسم مكوّن من أكتر من كلمتين
+        const lastName = nameParts.slice(1).join(" ");
         return {
           ...token,
           id: customUser.id,

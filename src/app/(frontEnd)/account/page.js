@@ -6,6 +6,8 @@ import { jwtDecode } from "jwt-decode";
 import { IoLogOut, IoTrash, IoRefresh } from "react-icons/io5";
 import { useOrders } from "../context/OrderContext";
 import { useUser } from "../context/UserContext.js";
+import { getSession } from "next-auth/react";
+import { date } from "node_modules/payload/dist/fields/validations.js";
 export default function AccountPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
@@ -21,7 +23,6 @@ export default function AccountPage() {
   const [successMessage, setSuccessMessage] = useState(null);
   const [localError, setLocalError] = useState(null);
   const [id, setId] = useState("");
-
   useEffect(() => {
     if (!currentUser) return;
 
@@ -31,6 +32,7 @@ export default function AccountPage() {
     setPhoneNumber(currentUser.phoneNumber || "");
     setProvider(currentUser.provider || "");
   }, [currentUser]);
+  console.log(currentUser);
 
   const handleDelete = async () => {
     if (orders.length > 0) {
@@ -74,12 +76,9 @@ export default function AccountPage() {
   };
 
   const handleUpdate = async () => {
+    console.log(date.session);
+
     try {
-      console.log(currentUser);
-
-      const token = session?.token;
-      console.log(token);
-
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_HOST}/api/auth/user/${currentUser.id}`,
         {
@@ -93,7 +92,22 @@ export default function AccountPage() {
       );
 
       if (res.ok) {
-        await update();
+        const updatedUser = await res.json();
+
+        await getSession();
+        await update({ token: updatedUser.token });
+        const decodedToken = jwtDecode(updatedUser.token);
+        setCurrentUser({
+          id: decodedToken.id,
+          name: decodedToken.name,
+          email: decodedToken.email,
+          role: decodedToken.role,
+          phoneNumber: decodedToken.phoneNumber,
+          provider: decodedToken.provider,
+          firstName: decodedToken.firstName,
+          lastName: decodedToken.lastName,
+        });
+
         setSuccessMessage("Profile updated successfully!");
         setTimeout(() => setSuccessMessage(""), 5000);
       } else {
@@ -103,7 +117,6 @@ export default function AccountPage() {
       }
     } catch (err) {
       console.log(err);
-
       setLocalError("An error occurred while updating your profile.");
       setTimeout(() => setLocalError(""), 5000);
     }
@@ -171,7 +184,7 @@ export default function AccountPage() {
                 className="w-full p-2 border rounded-lg bg-[#0D1117] text-white"
               />
             </div>
-            {provider === "local" ? (
+            {provider === "credentials" ? (
               <div>
                 <label className="block text-lg font-semibold mb-2">
                   New Password
