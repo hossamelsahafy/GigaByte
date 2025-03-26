@@ -168,6 +168,7 @@ const authOptions: NextAuthOptions = {
       account?: Account | null;
     }) {
       if (trigger === "update" && session?.token) {
+        //@ts-ignore
         const decoded = jwt.decode(session.token) as JWT;
         return {
           ...token,
@@ -199,14 +200,7 @@ const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: Session; token: JWT }) {
       return {
         ...session,
-        user: {
-          ...session.user,
-          id: token.id,
-          role: token.role,
-          phoneNumber: token.phoneNumber,
-          firstName: token.firstName,
-          lastName: token.lastName,
-        },
+
         token: jwt.sign(
           {
             id: token.id,

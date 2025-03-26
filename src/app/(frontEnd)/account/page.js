@@ -32,7 +32,6 @@ export default function AccountPage() {
     setPhoneNumber(currentUser.phoneNumber || "");
     setProvider(currentUser.provider || "");
   }, [currentUser]);
-  console.log(currentUser);
 
   const handleDelete = async () => {
     if (orders.length > 0) {
@@ -76,7 +75,8 @@ export default function AccountPage() {
   };
 
   const handleUpdate = async () => {
-    console.log(date.session);
+    console.log(session);
+    console.log(session.token);
 
     try {
       const res = await fetch(
@@ -94,7 +94,6 @@ export default function AccountPage() {
       if (res.ok) {
         const updatedUser = await res.json();
 
-        await getSession();
         await update({ token: updatedUser.token });
         const decodedToken = jwtDecode(updatedUser.token);
         setCurrentUser({
