@@ -129,6 +129,13 @@ const authOptions: NextAuthOptions = {
           },
           { upsert: true }
         );
+        console.log("✅ User signed in via OAuth:", {
+          id: token.id,
+          firstName: token.firstName,
+          lastName: token.lastName,
+          email: token.email,
+          provider: token.provider,
+        });
       } else if (user) {
         // For credentials provider
         const customUser = user as CustomUser;
@@ -140,6 +147,13 @@ const authOptions: NextAuthOptions = {
         token.provider = account?.provider || "credentials";
         token.phoneNumber = customUser.phoneNumber || null;
       }
+      console.log("✅ User signed in via credentials:", {
+        id: token.id,
+        firstName: token.firstName,
+        lastName: token.lastName,
+        email: token.email,
+        provider: token.provider,
+      });
       // @ts-ignore
 
       return token as CustomToken;
