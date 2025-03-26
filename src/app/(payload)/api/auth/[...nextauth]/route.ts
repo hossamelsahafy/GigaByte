@@ -87,23 +87,47 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    // @ts-ignore
-    async jwt({ token, user, account }): Promise<CustomToken> {
-      if (user) {
-        const customUser = user as CustomUser;
-        token.id = customUser.id;
-        token.name = customUser.name;
-        token.email = customUser.email;
-        token.role = customUser.role || "user";
-        token.provider = account?.provider || "credentials";
-        token.phoneNumber = customUser.phoneNumber || null;
+    //@ts-ignore
+    async jwt({ token, user, account, profile }) {
+      if (account && profile) {
+        // For OAuth providers like Google, Facebook:
+        if (account.provider === "google" || account.provider === "facebook") {
+          //@ts-ignore
+          const fullName = profile.name || "";
+          const [firstName, ...lastNameParts] = fullName.trim().split(" ");
+          const lastName = lastNameParts.join(" ");
+          //@ts-ignore
+          token.id = profile.sub || profile.id;
+          token.firstName = firstName;
+          token.lastName = lastName;
+          token.email = profile.email;
+          token.role = "user";
+          token.provider = account.provider;
+          token.name = `${firstName} ${lastName}`;
+          //@ts-ignore
+          token.phoneNumber = profile.phone_number || null;
+
+          // OPTIONAL: Save or update in DB if needed
+          // await saveOrUpdateUserInDB({ id: token.id, email: token.email, name: token.name, provider: token.provider });
+        }
+
+        // For credentials-based login:
+        if (account.provider === "credentials" && user) {
+          const customUser = user as CustomUser;
+          token.id = customUser.id;
+          token.name = customUser.name;
+          token.email = customUser.email;
+          token.role = customUser.role || "user";
+          token.provider = "credentials";
+          token.phoneNumber = customUser.phoneNumber || null;
+        }
       }
-      // @ts-ignore
+      //@ts-ignore
       return token as CustomToken;
     },
-    // @ts-ignore
-    async session({ token }): Promise<{ token: string }> {
-      // @ts-ignore
+    //@ts-ignore
+    async session({ token }) {
+      //@ts-ignore
       const customToken = token as CustomToken;
       return {
         token: jwt.sign(
@@ -122,7 +146,6 @@ const authOptions: NextAuthOptions = {
     },
   },
 };
-//
 // @ts-ignore
 const handler = NextAuth(authOptions);
 
