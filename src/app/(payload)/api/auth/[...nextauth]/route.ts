@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "../../../lib/dbConnect.js";
+import clientPromise from "../../../lib/dbConnect.js"; // JS file import
 import { compare } from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { MongoClient } from "mongodb";
@@ -17,7 +17,6 @@ interface CustomUser extends User {
   email: string;
   role: string;
   phoneNumber?: string;
-  provider?: string;
 }
 
 interface CustomToken {
@@ -33,20 +32,24 @@ interface CustomToken {
 
 const authOptions: NextAuthOptions = {
   providers: [
+    // @ts-ignore
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    // @ts-ignore
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
     }),
+    // @ts-ignore
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
+      // @ts-ignore
       async authorize(credentials): Promise<CustomUser | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required.");
@@ -58,17 +61,14 @@ const authOptions: NextAuthOptions = {
         const user = await db
           .collection("users")
           .findOne({ email: credentials.email });
-
         if (!user) {
           throw new Error("No user found with this email.");
         }
+        console.log("Found user:", user);
 
-        // Only compare password for credential provider users
-        if (user.provider === "credentials") {
-          const isValid = await compare(credentials.password, user.password);
-          if (!isValid) {
-            throw new Error("Invalid password.");
-          }
+        const isValid = await compare(credentials.password, user.password);
+        if (!isValid) {
+          throw new Error("Invalid password.");
         }
 
         return {
@@ -77,7 +77,6 @@ const authOptions: NextAuthOptions = {
           email: user.email,
           role: user.role || "user",
           phoneNumber: user.phoneNumber || undefined,
-          provider: user.provider || "credentials",
         };
       },
     }),
@@ -86,146 +85,95 @@ const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-  },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-      },
-    },
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
-      const client = await typedClientPromise;
-      const db = client.db();
-
-      // Handle Google/Facebook sign-in
+    async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "facebook") {
+        const client = await typedClientPromise;
+        const db = client.db();
+
         const existingUser = await db
           .collection("users")
           .findOne({ email: user.email });
 
         if (!existingUser) {
-          // Extract first and last name from profile or user.name
-          let firstName = "";
-          let lastName = "";
-
-          if (profile?.name) {
-            const nameParts = profile.name.split(" ");
-            firstName = nameParts[0];
-            lastName = nameParts.slice(1).join(" ");
-          } else if (user.name) {
-            const nameParts = user.name.split(" ");
-            firstName = nameParts[0];
-            lastName = nameParts.slice(1).join(" ");
-          }
-
           await db.collection("users").insertOne({
-            firstName,
-            lastName,
+            firstName: user.name?.split(" ")[0],
+            lastName: user.name?.split(" ")[1] || "",
             email: user.email,
             role: "user",
             provider: account.provider,
             phoneNumber: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           });
         } else {
-          // Update existing user if needed
           await db.collection("users").updateOne(
             { email: user.email },
             {
               $set: {
+                role: existingUser.role || "user",
                 provider: account.provider,
-                updatedAt: new Date(),
               },
-              $setOnInsert: {
-                role: "user",
-                phoneNumber: null,
-                createdAt: new Date(),
-              },
-            },
-            { upsert: true }
+            }
           );
         }
       }
-
       return true;
     },
 
-    async jwt({ token, user, account, profile }) {
-      // Initial sign in
+    // @ts-ignore
+    async jwt({ token, user, account }) {
       if (user) {
         const customUser = user as CustomUser;
-        return {
-          id: customUser.id,
-          name: customUser.name,
-          email: customUser.email,
-          role: customUser.role || "user",
-          provider: customUser.provider || account?.provider || "credentials",
-          phoneNumber: customUser.phoneNumber || null,
-        };
-      }
+        token.id = customUser.id;
+        token.name = customUser.name;
+        token.email = customUser.email;
+        token.role = customUser.role || "user";
+        token.provider = account?.provider || "credentials";
+        token.phoneNumber = customUser.phoneNumber || null;
+      } else if (
+        account &&
+        (account.provider === "google" || account.provider === "facebook")
+      ) {
+        const client = await typedClientPromise;
+        const db = client.db();
+        const existingUser = await db
+          .collection("users")
+          .findOne({ email: token.email });
 
-      // Subsequent calls - update token from database if needed
-      const client = await typedClientPromise;
-      const db = client.db();
-      const existingUser = await db
-        .collection("users")
-        .findOne({ email: token.email });
+        if (existingUser) {
+          token.id = existingUser._id.toString();
+          token.name = `${existingUser.firstName} ${existingUser.lastName}`;
+          token.email = existingUser.email;
+          token.role = existingUser.role || "user";
+          token.provider = account.provider;
+          token.phoneNumber = existingUser.phoneNumber || null;
+        }
+      } // @ts-ignore
 
-      if (existingUser) {
-        token.id = existingUser._id.toString();
-        token.name = `${existingUser.firstName} ${existingUser.lastName}`;
-        token.role = existingUser.role || "user";
-        token.provider = existingUser.provider || "credentials";
-        token.phoneNumber = existingUser.phoneNumber || null;
-      }
-
-      return token;
+      return token as CustomToken;
     },
+    // @ts-ignore
 
-    async session({ session, token }) {
-      // Create a signed JWT token for client-side use
-      const signedToken = jwt.sign(
-        {
-          id: token.id,
-          email: token.email,
-          role: token.role,
-          name: token.name,
-          provider: token.provider,
-          phoneNumber: token.phoneNumber,
-        },
-        process.env.JWT_SECRET!,
-        { expiresIn: "7d" }
-      );
-
-      // Set the token in the session
-      session.token = signedToken;
-      session.user = {
-        id: token.id as string,
-        name: token.name as string,
-        email: token.email as string,
-        role: token.role as string,
-        provider: token.provider as string,
-        phoneNumber: token.phoneNumber as string | null,
+    async session({ token }) {
+      return {
+        token: jwt.sign(
+          {
+            id: token.id,
+            email: token.email,
+            role: token.role,
+            name: token.name,
+            provider: token.provider,
+            phoneNumber: token.phoneNumber,
+          },
+          process.env.JWT_SECRET!,
+          { expiresIn: "7d" }
+        ),
       };
-
-      return session;
     },
-  },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
   },
 };
-
+//
+// @ts-ignore
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
