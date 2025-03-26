@@ -4,9 +4,7 @@ import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
 
-export async function DELETE(req, { params }) {
-  const { id } = params;
-
+export async function DELETE(req) {
   const authHeader = req.headers.get("authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return NextResponse.json(
@@ -34,14 +32,7 @@ export async function DELETE(req, { params }) {
   const usersCollection = db.collection("users");
   const ordersCollection = db.collection("orders");
 
-  if (userId !== id) {
-    return NextResponse.json(
-      { error: "Forbidden: You can't delete this account" },
-      { status: 403 }
-    );
-  }
-
-  const userOrders = await ordersCollection.find({ userId: id }).toArray();
+  const userOrders = await ordersCollection.find({ user }).toArray();
   if (userOrders.length > 0) {
     return NextResponse.json(
       { error: "Cannot delete account with active orders" },
@@ -49,7 +40,7 @@ export async function DELETE(req, { params }) {
     );
   }
 
-  await usersCollection.deleteOne({ _id: id });
+  await usersCollection.deleteOne({ _id: new ObjectId(userId) });
 
   return NextResponse.json(
     { message: "User deleted successfully" },
