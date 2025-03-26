@@ -87,8 +87,45 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google" || account?.provider === "facebook") {
+        const client = await typedClientPromise;
+        const db = client.db();
+
+        const existingUser = await db
+          .collection("users")
+          .findOne({ email: user.email });
+
+        if (!existingUser) {
+          // لو المستخدم مش موجود، سجله
+          await db.collection("users").insertOne({
+            firstName: user.name?.split(" ")[0],
+            lastName: user.name?.split(" ")[1] || "",
+            email: user.email,
+            role: "user",
+            provider: account.provider,
+            phoneNumber: null,
+          });
+        } else {
+          // لو موجود، اتأكد إن عنده role و provider
+          await db
+            .collection("users")
+            .updateOne(
+              { email: user.email },
+              {
+                $set: {
+                  role: existingUser.role || "user",
+                  provider: account.provider,
+                },
+              }
+            );
+        }
+      }
+      return true;
+    },
+
     // @ts-ignore
-    async jwt({ token, user, account }): Promise<CustomToken> {
+    async jwt({ token, user, account }) {
       if (user) {
         const customUser = user as CustomUser;
         token.id = customUser.id;
@@ -97,23 +134,40 @@ const authOptions: NextAuthOptions = {
         token.role = customUser.role || "user";
         token.provider = account?.provider || "credentials";
         token.phoneNumber = customUser.phoneNumber || null;
-      }
-      // @ts-ignore
+      } else if (
+        account &&
+        (account.provider === "google" || account.provider === "facebook")
+      ) {
+        const client = await typedClientPromise;
+        const db = client.db();
+        const existingUser = await db
+          .collection("users")
+          .findOne({ email: token.email });
+
+        if (existingUser) {
+          token.id = existingUser._id.toString();
+          token.name = `${existingUser.firstName} ${existingUser.lastName}`;
+          token.email = existingUser.email;
+          token.role = existingUser.role || "user";
+          token.provider = account.provider;
+          token.phoneNumber = existingUser.phoneNumber || null;
+        }
+      } // @ts-ignore
+
       return token as CustomToken;
     },
     // @ts-ignore
-    async session({ token }): Promise<{ token: string }> {
-      // @ts-ignore
-      const customToken = token as CustomToken;
+
+    async session({ token }) {
       return {
         token: jwt.sign(
           {
-            id: customToken.id,
-            email: customToken.email,
-            role: customToken.role,
-            name: customToken.name,
-            provider: customToken.provider,
-            phoneNumber: customToken.phoneNumber,
+            id: token.id,
+            email: token.email,
+            role: token.role,
+            name: token.name,
+            provider: token.provider,
+            phoneNumber: token.phoneNumber,
           },
           process.env.JWT_SECRET!,
           { expiresIn: "7d" }
