@@ -22,6 +22,7 @@ export const UserProvider = ({ children }) => {
       try {
         const decoded = JSON.parse(atob(session.token.split(".")[1]));
         const userId = decoded.id;
+        console.log(decoded);
 
         const res = await fetch(`/api/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${session.token}` },
