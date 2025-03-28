@@ -1,37 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GigaByte E-commerce Platform
 
-## Getting Started
+## Overview
 
-First, run the development server:
+GigaByte is a fully functional e-commerce platform built using **Next.js** and **Payload CMS**. It includes user authentication, product management, cart and checkout features, and email notifications.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Features
+
+- **Admin Dashboard**: Manage products and categories.
+- **Authentication**: Google & Facebook OAuth login.
+- **Password Management**: Forget password, change password.
+- **Cart & Checkout**: Users can add items to the cart and confirm orders.
+- **Email Notifications**: Order confirmation emails are sent to both users and the site owner.
+- **CMS Integration**: Products and categories can be managed through Payload CMS.
+- **Contact Us & About Us Pages**.
+
+## Media Upload
+
+Images must be uploaded from your local system or deployed on a server like Digital Ocean that provides storage and hosting for media files. Configure Payload CMS to store images locally or use a dedicated media storage solution on your server.
+
+## Requirements
+
+### Environment Variables
+
+Ensure the following environment variables are set up in your `.env.local` file:
+
+```env
+# Authentication Secrets
+JWT_SECRET=your_jwt_secret
+NEXTAUTH_SECRET=your_nextauth_secret
+
+# Database
+MONGODB_URI=your_mongodb_connection_string
+DATABASE_URI=same_as_mongodb_uri
+
+# OAuth Credentials
+FACEBOOK_CLIENT_ID=your_facebook_client_id
+FACEBOOK_CLIENT_SECRET=your_facebook_client_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Email SMTP Configuration
+SMTP_SERVER_HOST=your_smtp_host
+SITE_MAIL_RECIEVER=your_email
+SMTP_SERVER_USERNAME=your_smtp_username
+SMTP_SERVER_PASSWORD=your_smtp_password
+
+# Host Configurations
+NEXT_PUBLIC_HOST=your_host_or_domain
+HOST=your_host_or_domain
+NEXTAUTH_URL=your_nextauth_url
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Installation & Setup
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. **Clone the Repository**:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   git clone https://github.com/your-repo.git
+   cd your-repo
+   ```
 
-## Learn More
+2. **Install Dependencies**:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Set Up Environment Variables**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   - Copy `.env.example` to `.env.local` and update values accordingly.
 
-## Deploy on Vercel
+4. **Run the Development Server**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# GigaByte
+5. **Access the Application**:
+   - Frontend: `http://localhost:3000`
+   - Admin Dashboard: `http://localhost:3000/admin`
+
+## Deployment
+
+For deployment, ensure you update the **NEXT_PUBLIC_HOST** and **NEXTAUTH_URL** to the correct production domain.
