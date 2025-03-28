@@ -56,8 +56,8 @@ NEXTAUTH_URL=your_nextauth_url
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/your-repo.git
-   cd your-repo
+   git https://github.com/hossamelsahafy/GigaByte.git
+   cd GigaByte
    ```
 
 2. **Install Dependencies**:
