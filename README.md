@@ -28,6 +28,7 @@ Ensure the following environment variables are set up in your `.env.local` file:
 # Authentication Secrets
 JWT_SECRET=your_jwt_secret
 NEXTAUTH_SECRET=your_nextauth_secret
+PAYLOAD_SECRET=your_payload_secret
 
 # Database
 MONGODB_URI=your_mongodb_connection_string
@@ -44,11 +45,18 @@ SMTP_SERVER_HOST=your_smtp_host
 SITE_MAIL_RECIEVER=your_email
 SMTP_SERVER_USERNAME=your_smtp_username
 SMTP_SERVER_PASSWORD=your_smtp_password
+TO=your-email
 
 # Host Configurations
 NEXT_PUBLIC_HOST=your_host_or_domain
 HOST=your_host_or_domain
 NEXTAUTH_URL=your_nextauth_url
+
+# Cloudinary Config
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
 ```
 
 ## Installation & Setup
