@@ -1,0 +1,31 @@
+# E-commerce Platform License
+
+## 1. License Types
+
+By purchasing this product, you receive one of the following licenses:
+
+### (A) Personal License
+- You **CAN** use this product for personal projects.
+- You **CANNOT** use it for commercial projects, client work, or resale.
+
+### (B) Commercial License
+- You **CAN** use this product for client or business projects.
+- You **CANNOT** resell, redistribute, or claim ownership of this code.
+
+### (C) Extended License
+- You **CAN** modify and resell this product.
+- You **CANNOT** claim exclusive rights to the original code.
+- You **MUST** give credit to the original creator (optional if heavily modified).
+
+## 2. Restrictions
+Regardless of the license:
+- You **CANNOT** share or distribute the source code for free.
+- You **CANNOT** use this product in a way that violates any laws.
+- You **CANNOT** remove this license from the project.
+
+## 3. Disclaimer
+This software is provided "as is" without warranties or guarantees. The creator is not responsible for any damages resulting from its use.
+
+---
+
+📌 **Need an extended license? Contact me.**
