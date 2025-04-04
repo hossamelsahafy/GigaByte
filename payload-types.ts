@@ -299,7 +299,7 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
-  password?: T;
+  Password?: T;
   phoneNumber?: T;
   isVerified?: T;
   provider?: T;

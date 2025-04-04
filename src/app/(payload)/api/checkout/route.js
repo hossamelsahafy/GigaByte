@@ -136,10 +136,10 @@ export async function POST(req) {
         Order Items:\n${cartItems
           .map(
             (item) =>
-              `- ${item.name} - $${item.price.toFixed(2)} x ${item.quantity}`
+              `- ${item.name} - EGP${item.price.toFixed(2)} x ${item.quantity}`
           )
           .join("\n")}\n\n
-        Total Price: $${totalPrice.toFixed(2)}
+        Total Price: EGP ${totalPrice.toFixed(2)}
       `,
     };
 

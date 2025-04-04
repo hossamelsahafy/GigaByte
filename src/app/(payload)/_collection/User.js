@@ -38,7 +38,13 @@ const Users = {
     { name: "firstName", type: "text", required: true },
     { name: "lastName", type: "text", required: true },
     { name: "email", type: "email", required: true, unique: true },
-    { name: "password", type: "password" },
+    {
+      name: "Password",
+      type: "password",
+      admin: {
+        hidden: true,
+      },
+    },
     { name: "phoneNumber", type: "text" },
     {
       name: "isVerified",
