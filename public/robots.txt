@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://gb-d.vercel.app/sitemap.xml
+
